@@ -6,7 +6,7 @@ import VideoCall from '../components/VideoCall';
 import CallNotification from '../components/CallNotification';
 import './Chat.css';
 
-const socket = io('http://localhost:5000');
+const socket = io('https://astrodilip-webapp.onrender.com');
 
 const STICKERS = [
   'https://cdn-icons-png.flaticon.com/128/3306/3306619.png',

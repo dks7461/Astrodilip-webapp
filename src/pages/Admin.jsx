@@ -5,7 +5,7 @@ import VideoCall from '../components/VideoCall';
 import CallNotification from '../components/CallNotification';
 import './Chat.css';
 
-const socket = io('http://localhost:5000');
+const socket = io('https://astrodilip-webapp.onrender.com');
 
 const STICKERS = [
   'https://cdn-icons-png.flaticon.com/128/3306/3306619.png',
@@ -107,7 +107,7 @@ const Admin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/admin-login', {
+      const response = await fetch('https://astrodilip-webapp.onrender.com/api/admin-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: adminPassword }),
