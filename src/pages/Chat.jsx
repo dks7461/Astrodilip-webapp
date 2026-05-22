@@ -18,77 +18,70 @@ const EMOJIS = ['😊', '😂', '🥺', '🙏', '❤️', '👍', '✨', '🔥',
 
 const Chat = () => {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([]);
-  const [inputMsg, setInputMsg] = useState('');
-
-  // Real user state from Auth
-  const [user, setUser] = useState(null);
-  const [isJoined, setIsJoined] = useState(false);
-
+  const [messages,    setMessages]    = useState([]);
+  const [inputMsg,    setInputMsg]    = useState('');
+  const [user,        setUser]        = useState(null);
+  const [isJoined,    setIsJoined]    = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [showPicker, setShowPicker] = useState(false);
-  const [pickerTab, setPickerTab] = useState('emoji');
-
-  // ── Call States ──
-  const [activeCall, setActiveCall] = useState(null);
+  const [showPicker,  setShowPicker]  = useState(false);
+  const [pickerTab,   setPickerTab]   = useState('emoji');
+  const [activeCall,  setActiveCall]  = useState(null);
   const [incomingCall, setIncomingCall] = useState(null);
 
-  // BUG 3 FIX: store admin's real socket ID so we can send WebRTC offer to it
-  const [adminSocketId, setAdminSocketId] = useState(null);
-  const adminSocketIdRef = useRef(null); // ref so startCall always has latest value
-
-  const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const pickerRef = useRef(null);
+  const adminSocketIdRef = useRef(null);
+  const messagesEndRef   = useRef(null);
+  const fileInputRef     = useRef(null);
+  const pickerRef        = useRef(null);
 
   useEffect(() => {
-    // Check auth
     const saved = localStorage.getItem('astrology_user');
-    if (!saved) {
-      navigate('/login');
-      return;
-    }
-    const parsedUser = JSON.parse(saved);
-    setUser(parsedUser);
+    if (!saved) { navigate('/login'); return; }
+    setUser(JSON.parse(saved));
 
-    socket.on('client_init', (data) => {
-      setMessages(data.messages);
-    });
+    socket.on('client_init', (data) => setMessages(data.messages));
+    socket.on('receive_message', (msg) => setMessages(prev => [...prev, msg]));
 
-    socket.on('receive_message', (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    // ── Call Signal Listeners ──
-
-    // BUG 3 FIX: Save admin's real socket ID into both state and ref
     socket.on('admin_socket_id', ({ socketId }) => {
-      setAdminSocketId(socketId);
+      console.log('Got admin socket ID:', socketId);
       adminSocketIdRef.current = socketId;
     });
 
-    // Incoming call from admin
     socket.on('incoming_call', ({ callerSocketId, callerName, callType }) => {
       setIncomingCall({ callerSocketId, callerName, callType });
     });
 
-    // Call rejected by other side
+    // ─────────────────────────────────────────────────────────
+    // KEY FIX: catch call_accepted HERE in Chat.jsx (always mounted)
+    // NOT inside VideoCall (which may not be mounted yet when this fires).
+    // We update activeCall with the real accepterSocketId so VideoCall
+    // receives it as a prop and can send the WebRTC offer immediately.
+    // ─────────────────────────────────────────────────────────
+    socket.on('call_accepted', ({ accepterSocketId, accepterName, callType }) => {
+      console.log('call_accepted — accepterSocketId:', accepterSocketId);
+      setActiveCall(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          remoteSocketId: accepterSocketId,  // now we have the real socket ID
+          remoteUserName: accepterName || prev.remoteUserName,
+        };
+      });
+    });
+
     socket.on('call_rejected', () => {
       setActiveCall(null);
       setIncomingCall(null);
       alert('Call was declined.');
     });
 
-    // Other side ended the call
-    socket.on('call_ended', () => {
-      setActiveCall(null);
-    });
+    socket.on('call_ended', () => setActiveCall(null));
 
     return () => {
       socket.off('client_init');
       socket.off('receive_message');
       socket.off('admin_socket_id');
       socket.off('incoming_call');
+      socket.off('call_accepted');
       socket.off('call_rejected');
       socket.off('call_ended');
     };
@@ -99,13 +92,11 @@ const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
-        setShowPicker(false);
-      }
+    const handler = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) setShowPicker(false);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   const handleJoin = (e) => {
@@ -128,56 +119,38 @@ const Chat = () => {
 
     let fileData = null;
     if (selectedFile) {
-      fileData = {
-        name: selectedFile.name,
-        size: selectedFile.size,
-        type: selectedFile.type,
-      };
+      fileData = { name: selectedFile.name, size: selectedFile.size, type: selectedFile.type };
       const buffer = await selectedFile.arrayBuffer();
-      const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+      const base64 = btoa(new Uint8Array(buffer).reduce((d, b) => d + String.fromCharCode(b), ''));
       fileData.dataUrl = `data:${selectedFile.type};base64,${base64}`;
     }
 
-    socket.emit('send_message', {
-      text: inputMsg,
-      to: 'admin',
-      file: fileData,
-    });
-
+    socket.emit('send_message', { text: inputMsg, to: 'admin', file: fileData });
     setInputMsg('');
     setSelectedFile(null);
   };
 
-  const sendSticker = (stickerUrl) => {
-    socket.emit('send_message', {
-      text: '',
-      to: 'admin',
-      file: { type: 'sticker', dataUrl: stickerUrl, name: 'Sticker' },
-    });
+  const sendSticker = (url) => {
+    socket.emit('send_message', { text: '', to: 'admin', file: { type: 'sticker', dataUrl: url, name: 'Sticker' } });
     setShowPicker(false);
   };
 
-  // ── Initiate a call to admin ──
+  // ── Start outgoing call ──
   const startCall = (callType) => {
-    // BUG 3 FIX: Use the real admin socket ID from the ref (always latest)
-    const realAdminSocketId = adminSocketIdRef.current;
+    const adminId = adminSocketIdRef.current;
+    if (!adminId) { alert('Admin is not online right now.'); return; }
 
-    if (!realAdminSocketId) {
-      alert('Admin is not online right now. Please try again.');
-      return;
-    }
-
-    // Send call request to server - client role goes to admin room
     socket.emit('call_user', {
-      targetSocketId: realAdminSocketId, // not needed by server for client role but good to pass
+      targetSocketId: adminId,
       callerName: user?.name || 'Client',
       callType,
     });
 
-    // BUG 3 FIX: Use real admin socket ID as remoteSocketId so WebRTC offer goes to right place
+    // Set activeCall with remoteSocketId = null for now.
+    // It will be updated to the real accepterSocketId when call_accepted fires above.
     setActiveCall({
       callType,
-      remoteSocketId: realAdminSocketId,
+      remoteSocketId: null,      // will be filled by call_accepted handler above
       remoteUserName: 'Astro Dilip Sharma',
       isIncoming: false,
       callerSocketId: null,
@@ -187,14 +160,10 @@ const Chat = () => {
   // ── Accept incoming call ──
   const acceptCall = () => {
     if (!incomingCall) return;
-
-    // BUG 2 FIX: Emit accept_call so the caller (admin) gets call_accepted event
-    // and knows to send the WebRTC offer
     socket.emit('accept_call', {
       callerSocketId: incomingCall.callerSocketId,
       callType: incomingCall.callType,
     });
-
     setActiveCall({
       callType: incomingCall.callType,
       remoteSocketId: null,
@@ -205,33 +174,77 @@ const Chat = () => {
     setIncomingCall(null);
   };
 
-  // ── Reject incoming call ──
   const rejectCall = () => {
-    if (incomingCall) {
-      // BUG 5 FIX: Server expects 'callerSocketId' field, not 'targetSocketId'
-      socket.emit('reject_call', { callerSocketId: incomingCall.callerSocketId });
-    }
+    if (incomingCall) socket.emit('reject_call', { callerSocketId: incomingCall.callerSocketId });
     setIncomingCall(null);
   };
 
-  const formatSize = (bytes) => {
-    if (bytes < 1024) return bytes + ' B';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    else return (bytes / 1048576).toFixed(1) + ' MB';
-  };
+  const formatSize = (b) => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
 
-  // ── Render: Active Call Overlay ──
-  if (activeCall) {
+  // ── Render active call ──
+  // Only render VideoCall once remoteSocketId is known (for caller)
+  // or immediately for callee (they just need callerSocketId)
+  if (activeCall && (activeCall.isIncoming || activeCall.remoteSocketId)) {
     return (
-      <VideoCall
-        socket={socket}
-        callType={activeCall.callType}
-        remoteSocketId={activeCall.remoteSocketId}
-        remoteUserName={activeCall.remoteUserName}
-        isIncoming={activeCall.isIncoming}
-        callerSocketId={activeCall.callerSocketId}
-        onEndCall={() => setActiveCall(null)}
-      />
+      <>
+        <VideoCall
+          socket={socket}
+          callType={activeCall.callType}
+          remoteSocketId={activeCall.remoteSocketId}
+          remoteUserName={activeCall.remoteUserName}
+          isIncoming={activeCall.isIncoming}
+          callerSocketId={activeCall.callerSocketId}
+          onEndCall={() => setActiveCall(null)}
+        />
+        {incomingCall && (
+          <CallNotification
+            callerName={incomingCall.callerName}
+            callType={incomingCall.callType}
+            onAccept={acceptCall}
+            onReject={rejectCall}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Caller waiting for admin to accept
+  if (activeCall && !activeCall.isIncoming && !activeCall.remoteSocketId) {
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 9998,
+        background: 'rgba(0,0,0,0.88)',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: 24,
+      }}>
+        <div style={{
+          width: 90, height: 90, borderRadius: '50%',
+          background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 36, color: '#fff',
+          boxShadow: '0 0 0 16px rgba(124,58,237,0.15),0 0 0 32px rgba(124,58,237,0.07)',
+        }}>
+          {activeCall.callType === 'video' ? '📹' : '🎙️'}
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, margin: '0 0 6px' }}>
+            {activeCall.callType === 'video' ? 'Video calling' : 'Calling'}
+          </p>
+          <h2 style={{ color: '#fff', margin: 0 }}>{activeCall.remoteUserName}</h2>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 6 }}>Waiting for answer…</p>
+        </div>
+        <button
+          onClick={() => { socket.emit('end_call', { targetSocketId: adminSocketIdRef.current }); setActiveCall(null); }}
+          style={{
+            background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
+            border: 'none', borderRadius: '50%',
+            width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', cursor: 'pointer', fontSize: 24,
+          }}
+        >
+          📵
+        </button>
+      </div>
     );
   }
 
@@ -244,19 +257,11 @@ const Chat = () => {
             Click below to connect with Astro Dilip Sharma in real-time.
           </p>
           <form onSubmit={handleJoin} className="join-form">
-            <button
-              type="submit"
-              className="btn-primary"
-              style={{ width: '100%', justifyContent: 'center', padding: '1rem', fontSize: '1.1rem' }}
-            >
+            <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '1rem', fontSize: '1.1rem' }}>
               Start Chat Session
             </button>
           </form>
-          <button
-            onClick={() => navigate('/consultation')}
-            className="btn-outline"
-            style={{ width: '100%', marginTop: '1rem', justifyContent: 'center' }}
-          >
+          <button onClick={() => navigate('/consultation')} className="btn-outline" style={{ width: '100%', marginTop: '1rem', justifyContent: 'center' }}>
             Go Back
           </button>
         </div>
@@ -266,27 +271,17 @@ const Chat = () => {
 
   return (
     <div className="chat-page-wrapper custom-chat-bg">
-      {/* Incoming call notification */}
       {incomingCall && (
-        <CallNotification
-          callerName={incomingCall.callerName}
-          callType={incomingCall.callType}
-          onAccept={acceptCall}
-          onReject={rejectCall}
-        />
+        <CallNotification callerName={incomingCall.callerName} callType={incomingCall.callType} onAccept={acceptCall} onReject={rejectCall} />
       )}
 
       <div className="chat-interface custom-chat-panel">
         <div className="chat-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Link to="/consultation" className="back-btn">
-              <ArrowLeft size={20} />
-            </Link>
+            <Link to="/consultation" className="back-btn"><ArrowLeft size={20} /></Link>
             <div className="header-info">
               <div className="avatar-wrapper">
-                <div className="avatar">
-                  <User size={24} />
-                </div>
+                <div className="avatar"><User size={24} /></div>
                 <div className="online-dot-pulse"></div>
               </div>
               <div>
@@ -296,101 +291,41 @@ const Chat = () => {
             </div>
           </div>
           <div className="header-actions">
-            <button
-              className="action-btn"
-              title="Voice Call"
-              onClick={() => startCall('audio')}
-            >
-              <Phone size={18} />
-            </button>
-            <button
-              className="action-btn"
-              title="Video Call"
-              onClick={() => startCall('video')}
-            >
-              <Video size={18} />
-            </button>
+            <button className="action-btn" title="Voice Call" onClick={() => startCall('audio')}><Phone size={18} /></button>
+            <button className="action-btn" title="Video Call" onClick={() => startCall('video')}><Video size={18} /></button>
           </div>
         </div>
 
         <div className="chat-messages">
           {messages.length === 0 ? (
-            <div className="empty-chat">
-              <p>Send a message to start your consultation.</p>
-            </div>
+            <div className="empty-chat"><p>Send a message to start your consultation.</p></div>
           ) : (
-            messages.map((msg, index) => {
+            messages.map((msg, i) => {
               const isMine = msg.from === localStorage.getItem('astrology_user_id');
               return (
-                <div key={index} className={`message-wrapper slide-in ${isMine ? 'mine' : 'theirs'}`}>
-                  {!isMine && (
-                    <div className="msg-avatar">
-                      <User size={16} />
-                    </div>
-                  )}
+                <div key={i} className={`message-wrapper slide-in ${isMine ? 'mine' : 'theirs'}`}>
+                  {!isMine && <div className="msg-avatar"><User size={16} /></div>}
                   <div className="message-content">
                     <div className="message-bubble">
-                      {msg.file && msg.file.type === 'sticker' && (
-                        <img
-                          src={msg.file.dataUrl}
-                          alt="Sticker"
-                          style={{ width: '100px', background: 'transparent', border: 'none' }}
-                        />
-                      )}
-
+                      {msg.file?.type === 'sticker' && <img src={msg.file.dataUrl} alt="Sticker" style={{ width: 100 }} />}
                       {msg.file && msg.file.type !== 'sticker' && msg.file.type.startsWith('image/') && (
-                        <a href={msg.file.dataUrl} target="_blank" rel="noreferrer" style={{ display: 'block' }}>
-                          <img
-                            src={msg.file.dataUrl}
-                            alt="attachment"
-                            style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: msg.text ? '8px' : '0' }}
-                          />
+                        <a href={msg.file.dataUrl} target="_blank" rel="noreferrer">
+                          <img src={msg.file.dataUrl} alt="attachment" style={{ maxWidth: '100%', borderRadius: 8 }} />
                         </a>
                       )}
-
                       {msg.file && msg.file.type !== 'sticker' && !msg.file.type.startsWith('image/') && (
-                        <div className="file-attachment-bubble" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <FileText size={24} />
-                            <div className="file-meta">
-                              <span className="file-name">{msg.file.name}</span>
-                              <span className="file-size">{formatSize(msg.file.size)}</span>
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', gap: '8px', marginTop: '8px', width: '100%' }}>
-                            <a
-                              href={msg.file.dataUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              style={{
-                                fontSize: '12px', color: '#F59E0B', textDecoration: 'none',
-                                border: '1px solid rgba(245,158,11,0.4)', borderRadius: '12px',
-                                padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '4px', flex: 1, justifyContent: 'center',
-                              }}
-                            >
-                              Open
-                            </a>
-                            <a
-                              href={msg.file.dataUrl}
-                              download={msg.file.name}
-                              style={{
-                                fontSize: '12px', color: '#fff', textDecoration: 'none',
-                                background: 'rgba(124,58,237,0.4)', borderRadius: '12px',
-                                padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '4px', flex: 1, justifyContent: 'center',
-                              }}
-                            >
-                              Download
-                            </a>
+                        <div className="file-attachment-bubble">
+                          <FileText size={24} />
+                          <div className="file-meta">
+                            <span className="file-name">{msg.file.name}</span>
+                            <span className="file-size">{formatSize(msg.file.size)}</span>
                           </div>
                         </div>
                       )}
-
                       {msg.text && <p>{msg.text}</p>}
                     </div>
                     <div className="msg-meta">
-                      <span className="timestamp">
-                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                      <span className="timestamp">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       {isMine && <CheckCheck size={14} className="seen-tick" />}
                     </div>
                   </div>
@@ -404,83 +339,46 @@ const Chat = () => {
         <div className="admin-input-container">
           {selectedFile && (
             <div className="file-preview-chip">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {selectedFile.type.startsWith('image/') ? (
                   <img src={URL.createObjectURL(selectedFile)} alt="preview" className="file-thumb" />
-                ) : (
-                  <FileText size={16} color="#F59E0B" />
-                )}
+                ) : <FileText size={16} color="#F59E0B" />}
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <span className="preview-name">{selectedFile.name}</span>
                   <span className="preview-size">{formatSize(selectedFile.size)}</span>
                 </div>
               </div>
-              <button onClick={() => setSelectedFile(null)} className="remove-file-btn">
-                <X size={14} />
-              </button>
+              <button onClick={() => setSelectedFile(null)} className="remove-file-btn"><X size={14} /></button>
             </div>
           )}
-
           <form onSubmit={handleSend} className="chat-input-area" style={{ borderTop: 'none', padding: '0 1.5rem 1rem' }}>
-            <div className="input-bar" style={{ borderRadius: '28px' }}>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileSelect}
-                accept="image/*,.pdf,.doc,.docx"
-                hidden
-              />
-              <button type="button" className="icon-btn" onClick={() => fileInputRef.current.click()}>
-                <Paperclip size={20} />
-              </button>
-
-              <input
-                type="text"
-                placeholder="Type a message..."
-                value={inputMsg}
-                onChange={(e) => setInputMsg(e.target.value)}
-                className="chat-input-field"
-              />
-
+            <div className="input-bar" style={{ borderRadius: 28 }}>
+              <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*,.pdf,.doc,.docx" hidden />
+              <button type="button" className="icon-btn" onClick={() => fileInputRef.current.click()}><Paperclip size={20} /></button>
+              <input type="text" placeholder="Type a message..." value={inputMsg} onChange={e => setInputMsg(e.target.value)} className="chat-input-field" />
               <div className="picker-container" ref={pickerRef}>
-                <button type="button" className="icon-btn" onClick={() => setShowPicker(!showPicker)}>
-                  <Smile size={20} />
-                </button>
-
+                <button type="button" className="icon-btn" onClick={() => setShowPicker(!showPicker)}><Smile size={20} /></button>
                 {showPicker && (
                   <div className="emoji-picker-panel">
                     <div className="picker-tabs">
-                      <button type="button" className={pickerTab === 'emoji' ? 'active' : ''} onClick={() => setPickerTab('emoji')}>
-                        Emoji
-                      </button>
-                      <button type="button" className={pickerTab === 'sticker' ? 'active' : ''} onClick={() => setPickerTab('sticker')}>
-                        Stickers
-                      </button>
+                      <button type="button" className={pickerTab === 'emoji' ? 'active' : ''} onClick={() => setPickerTab('emoji')}>Emoji</button>
+                      <button type="button" className={pickerTab === 'sticker' ? 'active' : ''} onClick={() => setPickerTab('sticker')}>Stickers</button>
                     </div>
                     <div className="picker-content">
                       {pickerTab === 'emoji' ? (
                         <div className="emoji-grid">
-                          {EMOJIS.map((emoji, i) => (
-                            <span key={i} onClick={() => { setInputMsg((prev) => prev + emoji); setShowPicker(false); }}>
-                              {emoji}
-                            </span>
-                          ))}
+                          {EMOJIS.map((e, i) => <span key={i} onClick={() => { setInputMsg(p => p + e); setShowPicker(false); }}>{e}</span>)}
                         </div>
                       ) : (
                         <div className="sticker-grid">
-                          {STICKERS.map((st, i) => (
-                            <img key={i} src={st} alt="sticker" onClick={() => sendSticker(st)} />
-                          ))}
+                          {STICKERS.map((s, i) => <img key={i} src={s} alt="sticker" onClick={() => sendSticker(s)} />)}
                         </div>
                       )}
                     </div>
                   </div>
                 )}
               </div>
-
-              <button type="submit" className="send-btn" disabled={!inputMsg.trim() && !selectedFile}>
-                <Send size={18} />
-              </button>
+              <button type="submit" className="send-btn" disabled={!inputMsg.trim() && !selectedFile}><Send size={18} /></button>
             </div>
           </form>
         </div>
