@@ -389,80 +389,6 @@ const Admin = () => {
           </form>
         </div>
 
-      {/* === MODALS === */}
-      {showBookingModal && selectedBookingForModal && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0,0,0,0.8)', zIndex: 10000, display: 'flex',
-          alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div style={{
-            background: '#0a0a1a', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '560px',
-            color: '#fff', maxHeight: '90vh', overflowY: 'auto', position: 'relative'
-          }}>
-            <button onClick={() => setShowBookingModal(false)} style={{
-              position: 'absolute', top: '24px', right: '24px', background: 'transparent',
-              border: 'none', color: '#fff', cursor: 'pointer'
-            }}>
-              <X size={24} />
-            </button>
-            <h2 style={{ marginTop: 0, marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Booking Details</h2>
-            
-            {/* Section 1 */}
-            <div style={{ marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Appointment Info</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>ID:</span> {selectedBookingForModal._id}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Date:</span> {selectedBookingForModal.date}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Time:</span> {selectedBookingForModal.timeSlot}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Type:</span> {selectedBookingForModal.consultationType}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Status:</span> {selectedBookingForModal.status}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Amount:</span> ₹{selectedBookingForModal.amount}</div>
-              </div>
-            </div>
-
-            {/* Section 2 */}
-            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Client Info</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Name:</span> {selectedBookingForModal.userName || 'N/A'}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Phone:</span> {selectedBookingForModal.userPhone || 'N/A'}</div>
-                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'rgba(255,255,255,0.5)' }}>Email:</span> {selectedBookingForModal.userEmail || 'N/A'}</div>
-              </div>
-            </div>
-
-            {/* Section 3 */}
-            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Astrological Details</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>DOB:</span> {selectedBookingForModal.dob || 'N/A'}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>TOB:</span> {selectedBookingForModal.tob || 'N/A'}</div>
-                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'rgba(255,255,255,0.5)' }}>Place:</span> {selectedBookingForModal.pob || 'N/A'}</div>
-              </div>
-            </div>
-
-            {/* Section 4 */}
-            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Client's Question / Topic</h3>
-              <div style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '8px', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                {selectedBookingForModal.notes || 'No specific question provided.'}
-              </div>
-            </div>
-
-            {selectedBookingForModal.status === 'confirmed' && (
-              <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'flex-end' }}>
-                <button 
-                  onClick={() => { handleNotifyUser(selectedBookingForModal); setShowBookingModal(false); }}
-                  style={{ background: '#F59E0B', color: '#000', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <Bell size={18} /> Start Session (Notify Client)
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
       </div>
     );
   }
@@ -1038,6 +964,80 @@ const Admin = () => {
         </div>
       )}
 
+      {/* === BOOKING DETAILS MODAL === */}
+      {showBookingModal && selectedBookingForModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.8)', zIndex: 10000, display: 'flex',
+          alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            background: '#0a0a1a', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '560px',
+            color: '#fff', maxHeight: '90vh', overflowY: 'auto', position: 'relative'
+          }}>
+            <button onClick={() => setShowBookingModal(false)} style={{
+              position: 'absolute', top: '24px', right: '24px', background: 'transparent',
+              border: 'none', color: '#fff', cursor: 'pointer'
+            }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ marginTop: 0, marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Booking Details</h2>
+            
+            {/* Section 1 */}
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Appointment Info</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>ID:</span> {selectedBookingForModal._id}</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Date:</span> {selectedBookingForModal.date}</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Time:</span> {selectedBookingForModal.timeSlot}</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Type:</span> {selectedBookingForModal.consultationType}</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Status:</span> {selectedBookingForModal.status}</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Amount:</span> ₹{selectedBookingForModal.amount}</div>
+              </div>
+            </div>
+
+            {/* Section 2 */}
+            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Client Info</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Name:</span> {selectedBookingForModal.userName || 'N/A'}</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Phone:</span> {selectedBookingForModal.userPhone || 'N/A'}</div>
+                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'rgba(255,255,255,0.5)' }}>Email:</span> {selectedBookingForModal.userEmail || 'N/A'}</div>
+              </div>
+            </div>
+
+            {/* Section 3 */}
+            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Astrological Details</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>DOB:</span> {selectedBookingForModal.dob || 'N/A'}</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>TOB:</span> {selectedBookingForModal.tob || 'N/A'}</div>
+                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'rgba(255,255,255,0.5)' }}>Place:</span> {selectedBookingForModal.pob || 'N/A'}</div>
+              </div>
+            </div>
+
+            {/* Section 4 */}
+            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Client's Question / Topic</h3>
+              <div style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '8px', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                {selectedBookingForModal.notes || 'No specific question provided.'}
+              </div>
+            </div>
+
+            {selectedBookingForModal.status === 'confirmed' && (
+              <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'flex-end' }}>
+                <button 
+                  onClick={() => { handleNotifyUser(selectedBookingForModal); setShowBookingModal(false); }}
+                  style={{ background: '#F59E0B', color: '#000', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <Bell size={18} /> Start Session (Notify Client)
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
