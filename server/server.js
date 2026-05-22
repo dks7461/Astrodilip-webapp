@@ -31,10 +31,21 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+// Prevent Render free tier from sleeping
+setInterval(() => {
+  fetch('https://astrodilip-webapp.onrender.com/api/online-users')
+    .then(() => console.log('Keep-alive ping sent'))
+    .catch(() => console.log('Keep-alive ping failed'));
+}, 14 * 60 * 1000);
+
 // Active socket users
 const activeUsers = new Map();
 
 // ----- API ENDPOINTS -----
+
+app.get('/api/online-users', (req, res) => {
+  res.status(200).json({ status: 'ok', count: activeUsers.size });
+});
 
 app.post('/api/signup', async (req, res) => {
   try {
@@ -219,7 +230,7 @@ app.get('/api/bookings', async (req, res) => {
   }
 });
 
-app.get('/api/bookings/:userId', async (req, res) => {
+app.get('/api/bookings/user/:userId', async (req, res) => {
   try {
     const bookings = await Booking.find({ userId: req.params.userId }).sort({ createdAt: -1 });
     res.status(200).json(bookings);

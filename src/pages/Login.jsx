@@ -29,8 +29,14 @@ const Login = () => {
       }
 
       // Save user to localStorage
-      localStorage.setItem('astrology_user', JSON.stringify(data.user));
-      navigate('/chat'); // Send them straight to chat room
+      const userToSave = {
+        id: data.user.id || data.user._id,
+        name: data.user.name,
+        email: data.user.email
+      };
+      localStorage.setItem('astrology_user', JSON.stringify(userToSave));
+      localStorage.setItem('astrology_user_id', userToSave.id);
+      navigate('/consultation');
     } catch (err) {
       setError(err.message);
     } finally {

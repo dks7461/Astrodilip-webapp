@@ -30,8 +30,14 @@ const Signup = () => {
       }
 
       // Automatically log them in by saving user data
-      localStorage.setItem('astrology_user', JSON.stringify(data.user));
-      navigate('/chat'); // Redirect to chat or consultation
+      const userToSave = {
+        id: data.user.id || data.user._id,
+        name: data.user.name,
+        email: data.user.email
+      };
+      localStorage.setItem('astrology_user', JSON.stringify(userToSave));
+      localStorage.setItem('astrology_user_id', userToSave.id);
+      navigate('/booking'); // Redirect to booking
     } catch (err) {
       setError(err.message);
     } finally {

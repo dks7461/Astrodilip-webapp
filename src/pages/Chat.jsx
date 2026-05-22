@@ -41,7 +41,7 @@ const Chat = () => {
     const parsedUser = JSON.parse(saved);
     setUser(parsedUser);
 
-    fetch(`https://astrodilip-webapp.onrender.com/api/bookings/${parsedUser.id || parsedUser._id}`)
+    fetch(`https://astrodilip-webapp.onrender.com/api/bookings/user/${parsedUser.id || parsedUser._id}`)
       .then(res => res.json())
       .then(data => {
         const hasConfirmed = data.some(b => b.status === 'confirmed');

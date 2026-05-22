@@ -24,7 +24,7 @@ const MyBookings = () => {
       return;
     }
     try {
-      const res = await fetch(`https://astrodilip-webapp.onrender.com/api/bookings/${userId}`);
+      const res = await fetch(`https://astrodilip-webapp.onrender.com/api/bookings/user/${userId}`);
       const data = await res.json();
       setBookings(data);
     } catch (err) {
