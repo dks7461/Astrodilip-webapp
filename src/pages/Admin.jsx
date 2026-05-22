@@ -43,6 +43,7 @@ const Admin = () => {
   // User Tab States
   const [userSearch, setUserSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
+  const [activeMenuDropdownId, setActiveMenuDropdownId] = useState(null);
 
   // Booking Tab States
   const [bookingFilter, setBookingFilter] = useState('All');
@@ -810,9 +811,33 @@ const Admin = () => {
                         <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{user.email}</td>
                         <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{user.phone || 'Not provided'}</td>
                         <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{formatDate(user.createdAt)}</td>
-                        <td style={{ padding: '16px', display: 'flex', gap: '8px' }}>
+                        <td style={{ padding: '16px', display: 'flex', gap: '8px', alignItems: 'center', position: 'relative' }}>
                           <button onClick={() => setSelectedUser(user)} style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>View</button>
-                          <button onClick={() => deleteUser(user._id)} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Delete</button>
+                          
+                          <div style={{ position: 'relative' }}>
+                            <button 
+                              onClick={() => setActiveMenuDropdownId(activeMenuDropdownId === user._id ? null : user._id)} 
+                              style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
+                            >
+                              <MoreVertical size={16} />
+                            </button>
+
+                            {activeMenuDropdownId === user._id && (
+                              <div style={{
+                                position: 'absolute', right: 0, top: '100%', zIndex: 10,
+                                background: '#13102A', border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '8px', padding: '8px', minWidth: '120px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.5)', marginTop: '4px'
+                              }}>
+                                <button 
+                                  onClick={() => { setActiveMenuDropdownId(null); deleteUser(user._id); }} 
+                                  style={{ background: 'transparent', color: '#dc2626', border: 'none', width: '100%', textAlign: 'left', padding: '8px 12px', cursor: 'pointer', fontSize: '13px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                >
+                                  <Trash2 size={14} /> Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
