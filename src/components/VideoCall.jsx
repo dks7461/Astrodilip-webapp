@@ -2,62 +2,82 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Mic, MicOff, Video, VideoOff, PhoneOff } from 'lucide-react';
 import './VideoCall.css';
 
-// TURN servers — required for production. STUN-only fails across real networks.
+// ─────────────────────────────────────────────────────────────────
+// TURN + STUN servers — multiple fallbacks so real-network calls work
+// ─────────────────────────────────────────────────────────────────
 const ICE_SERVERS = {
   iceServers: [
+    // Google STUN (works on same network / simple cases)
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+
+    // Open Relay TURN — UDP port 80
     {
       urls: 'turn:openrelay.metered.ca:80',
       username: 'openrelayproject',
       credential: 'openrelayproject',
     },
-    {
-      urls: 'turn:openrelay.metered.ca:443',
-      username: 'openrelayproject',
-      credential: 'openrelayproject',
-    },
+    // Open Relay TURN — TCP port 443 (punches through firewalls)
     {
       urls: 'turn:openrelay.metered.ca:443?transport=tcp',
       username: 'openrelayproject',
       credential: 'openrelayproject',
     },
-  ]
+    // Metered free TURN fallback
+    {
+      urls: 'turn:a.relay.metered.ca:80',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+    {
+      urls: 'turn:a.relay.metered.ca:80?transport=tcp',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+    {
+      urls: 'turn:a.relay.metered.ca:443',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+    {
+      urls: 'turn:a.relay.metered.ca:443?transport=tcp',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+  ],
+  // This forces TURN relay when STUN fails — critical for mobile data
+  iceTransportPolicy: 'all',
 };
 
 const VideoCall = ({
   socket,
   callType,
-  remoteSocketId,      // for CALLER: the accepter's real socket ID (passed from Chat.jsx after call_accepted)
+  remoteSocketId,
   remoteUserName,
-  isIncoming,          // true = we are the callee
+  isIncoming,
   onEndCall,
-  callerSocketId,      // for CALLEE: who called us
+  callerSocketId,
 }) => {
-  const localVideoRef  = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const pcRef          = useRef(null);
-  const localStreamRef = useRef(null);
-
-  // Always-current target socket ID
-  const liveTargetRef  = useRef(remoteSocketId || callerSocketId || null);
-
-  // ICE candidate queue — candidates can arrive before remoteDescription is set
-  const iceQueueRef       = useRef([]);
+  const localVideoRef   = useRef(null);
+  const remoteVideoRef  = useRef(null);
+  const pcRef           = useRef(null);
+  const localStreamRef  = useRef(null);
+  const liveTargetRef   = useRef(remoteSocketId || callerSocketId || null);
+  const iceQueueRef     = useRef([]);
   const remoteDescReadyRef = useRef(false);
-
-  const [isMuted,     setIsMuted]     = useState(false);
-  const [isCameraOff, setIsCameraOff] = useState(false);
-  const [callStatus,  setCallStatus]  = useState('connecting');
-  const [callDuration, setCallDuration] = useState(0);
-
-  const timerRef      = useRef(null);
+  const callStartedRef  = useRef(false);
+  const timerRef        = useRef(null);
   const disconnTimerRef = useRef(null);
-  const callStartedRef  = useRef(false); // prevent double startCall
+
+  const [isMuted,      setIsMuted]      = useState(false);
+  const [isCameraOff,  setIsCameraOff]  = useState(false);
+  const [callStatus,   setCallStatus]   = useState('connecting');
+  const [callDuration, setCallDuration] = useState(0);
 
   // ── Local stream ──
   const startLocalStream = async () => {
-    if (localStreamRef.current) return localStreamRef.current; // already started
+    if (localStreamRef.current) return localStreamRef.current;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -68,13 +88,13 @@ const VideoCall = ({
       return stream;
     } catch (err) {
       console.error('getUserMedia error:', err);
-      alert('Could not access camera/microphone. Please allow permissions.');
+      alert('Could not access camera/microphone. Please allow permissions and try again.');
       onEndCall();
       return null;
     }
   };
 
-  // ── Safe ICE candidate ──
+  // ── Safe ICE candidate queuing ──
   const safeAddIce = async (candidate) => {
     if (!pcRef.current) return;
     if (remoteDescReadyRef.current) {
@@ -96,25 +116,46 @@ const VideoCall = ({
 
   // ── Create peer connection ──
   const createPC = (stream, targetId) => {
-    if (pcRef.current) return pcRef.current; // don't create twice
+    if (pcRef.current) return pcRef.current;
     const pc = new RTCPeerConnection(ICE_SERVERS);
 
     stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
     pc.ontrack = (e) => {
-      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = e.streams[0];
+      console.log('Got remote track:', e.streams[0]);
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = e.streams[0];
+        // Force play on mobile browsers
+        remoteVideoRef.current.play().catch(err => console.warn('Remote play error:', err));
+      }
     };
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
         const target = targetId || liveTargetRef.current;
-        if (target) socket.emit('ice_candidate', { targetSocketId: target, candidate: e.candidate });
+        if (target) {
+          socket.emit('ice_candidate', { targetSocketId: target, candidate: e.candidate });
+        }
+      }
+    };
+
+    // Log ICE gathering state to debug
+    pc.onicegatheringstatechange = () => {
+      console.log('ICE gathering state:', pc.iceGatheringState);
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log('ICE connection state:', pc.iceConnectionState);
+      // If ICE fails, try restarting it
+      if (pc.iceConnectionState === 'failed') {
+        console.log('ICE failed — attempting restart...');
+        pc.restartIce();
       }
     };
 
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
-      console.log('WebRTC state:', s);
+      console.log('WebRTC connection state:', s);
       if (s === 'connected') {
         clearTimeout(disconnTimerRef.current);
         setCallStatus('active');
@@ -123,14 +164,20 @@ const VideoCall = ({
         }
       }
       if (s === 'disconnected') {
-        // Give 5s to recover before ending
         disconnTimerRef.current = setTimeout(() => {
           if (pcRef.current?.connectionState !== 'connected') handleEndCall();
         }, 5000);
       }
       if (s === 'failed') {
         clearTimeout(disconnTimerRef.current);
-        handleEndCall();
+        // Try ICE restart before giving up
+        console.log('Connection failed — trying ICE restart...');
+        pcRef.current?.restartIce();
+        setTimeout(() => {
+          if (pcRef.current?.connectionState === 'failed') {
+            handleEndCall();
+          }
+        }, 4000);
       }
     };
 
@@ -138,11 +185,10 @@ const VideoCall = ({
     return pc;
   };
 
-  // ── CALLER: create & send offer ──
+  // ── CALLER: create and send offer ──
   const doStartCall = async (targetId) => {
-    if (callStartedRef.current) return; // prevent double call
+    if (callStartedRef.current) return;
     callStartedRef.current = true;
-
     if (targetId) liveTargetRef.current = targetId;
 
     const stream = await startLocalStream();
@@ -150,7 +196,10 @@ const VideoCall = ({
 
     const pc = createPC(stream, targetId || liveTargetRef.current);
 
-    const offer = await pc.createOffer();
+    const offer = await pc.createOffer({
+      offerToReceiveAudio: true,
+      offerToReceiveVideo: callType === 'video',
+    });
     await pc.setLocalDescription(offer);
 
     socket.emit('webrtc_offer', {
@@ -160,7 +209,7 @@ const VideoCall = ({
     console.log('Sent webrtc_offer to', targetId || liveTargetRef.current);
   };
 
-  // ── CALLEE: handle offer → send answer ──
+  // ── CALLEE: handle offer and send answer ──
   const handleOffer = async (offer, callerSockId) => {
     if (callerSockId) liveTargetRef.current = callerSockId;
 
@@ -212,28 +261,19 @@ const VideoCall = ({
 
   // ── Main effect ──
   useEffect(() => {
-    // Always start local stream immediately on mount
     startLocalStream();
 
     if (!isIncoming) {
-      // CALLER side
-      // If remoteSocketId was already passed as prop (Chat.jsx caught call_accepted
-      // before VideoCall mounted), fire the offer immediately.
       if (remoteSocketId) {
-        console.log('Caller: remoteSocketId available on mount, starting call immediately:', remoteSocketId);
-        setTimeout(() => doStartCall(remoteSocketId), 150);
+        console.log('Caller: remoteSocketId on mount, starting immediately:', remoteSocketId);
+        setTimeout(() => doStartCall(remoteSocketId), 200);
       }
-
-      // Also keep this listener as a fallback for slow networks where
-      // call_accepted might arrive slightly after mount
       socket.on('call_accepted', ({ accepterSocketId }) => {
-        console.log('Caller: call_accepted received, accepterSocketId:', accepterSocketId);
+        console.log('call_accepted — accepterSocketId:', accepterSocketId);
         doStartCall(accepterSocketId);
       });
-
     } else {
-      // CALLEE side — wait for the offer from the caller
-      console.log('Callee: waiting for webrtc_offer, callerSocketId:', callerSocketId);
+      console.log('Callee: waiting for webrtc_offer from', callerSocketId);
     }
 
     socket.on('webrtc_offer', ({ offer, callerSocketId: callerSockId }) => {
