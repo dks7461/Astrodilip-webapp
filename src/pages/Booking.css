@@ -1,32 +1,14 @@
 .booking-page {
   min-height: 100vh;
-  background-color: #0a0a1a;
-  color: white;
+  background-color: transparent;
+  color: var(--text-main);
   padding: 8rem 2rem 4rem;
   position: relative;
   overflow: hidden;
 }
 
 .stars-bg {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 50px 160px, #ddd, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 130px 80px, #fff, rgba(0,0,0,0));
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  animation: twinkle 5s infinite linear;
-  opacity: 0.3;
-  z-index: 0;
-  pointer-events: none;
-}
-
-@keyframes twinkle {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-200px); }
+  display: none;
 }
 
 .booking-container {
@@ -42,12 +24,12 @@
   align-items: center;
   gap: 12px;
   font-size: 32px;
-  color: #F59E0B;
+  color: var(--text-main);
   margin-bottom: 40px;
 }
 
 .sparkle-icon {
-  color: #7c3aed;
+  color: var(--primary);
 }
 
 .booking-layout {
@@ -61,14 +43,14 @@
   display: flex;
   flex-direction: column;
   gap: 40px;
-  min-width: 0; /* CRITICAL: Allows flex item to shrink below content width */
+  min-width: 0;
 }
 
 .booking-section h2 {
   font-size: 20px;
   margin-bottom: 20px;
-  color: #fff;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-main);
+  border-bottom: 2px solid var(--text-main);
   padding-bottom: 10px;
 }
 
@@ -80,8 +62,8 @@
 }
 
 .type-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: 2px solid var(--text-main);
   border-radius: 16px;
   padding: 24px;
   text-align: center;
@@ -90,18 +72,19 @@
 }
 
 .type-card:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--primary);
   transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--text-main);
 }
 
 .type-card.selected {
-  border-color: #7c3aed;
-  background: rgba(124, 58, 237, 0.1);
-  box-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+  background: var(--primary);
+  border-color: var(--text-main);
+  box-shadow: 4px 4px 0 var(--text-main);
 }
 
 .type-icon {
-  color: #F59E0B;
+  color: var(--text-main);
   margin-bottom: 12px;
 }
 
@@ -113,12 +96,12 @@
 .type-card .price {
   font-size: 24px;
   font-weight: bold;
-  color: #10B981;
+  color: var(--text-main);
   margin-bottom: 4px;
 }
 
 .type-card .duration {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-main);
   font-size: 14px;
 }
 
@@ -135,14 +118,14 @@
 }
 
 .date-picker::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-main);
   border-radius: 4px;
 }
 
 .date-card {
   min-width: 80px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: 2px solid var(--text-main);
   border-radius: 12px;
   padding: 16px 12px;
   text-align: center;
@@ -154,27 +137,28 @@
 }
 
 .date-card:not(.disabled):hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--primary);
 }
 
 .date-card.selected {
-  background: linear-gradient(135deg, #7c3aed, #F59E0B);
-  border-color: transparent;
-  color: white;
+  background: var(--primary);
+  border-color: var(--text-main);
+  color: var(--text-main);
+  box-shadow: 2px 2px 0 var(--text-main);
 }
 
 .date-card.disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.02);
+  background: transparent;
+  border: 2px dashed var(--text-main);
 }
 
 .day-name {
   font-size: 14px;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-main);
 }
-.date-card.selected .day-name { color: rgba(255, 255, 255, 0.9); }
 
 .date-num {
   font-size: 24px;
@@ -183,13 +167,13 @@
 
 .holiday-text {
   font-size: 11px;
-  color: #F87171;
+  color: var(--text-main);
   font-weight: bold;
 }
 
 /* TIME SLOTS */
 .hint-text {
-  color: rgba(255,255,255,0.5);
+  color: var(--text-main);
   font-style: italic;
 }
 
@@ -200,11 +184,11 @@
 }
 
 .time-slot {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: 2px solid var(--text-main);
   border-radius: 8px;
   padding: 12px;
-  color: white;
+  color: var(--text-main);
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
@@ -212,34 +196,37 @@
 }
 
 .time-slot:not(:disabled):hover {
-  background: rgba(124, 58, 237, 0.2);
-  border-color: #7c3aed;
+  background: var(--primary);
+  border-color: var(--text-main);
 }
 
 .time-slot.selected {
-  background: #7c3aed;
-  border-color: #7c3aed;
+  background: var(--primary);
+  border-color: var(--text-main);
   font-weight: bold;
+  box-shadow: 2px 2px 0 var(--text-main);
 }
 
 .time-slot:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.02);
+  background: transparent;
+  border: 2px dashed var(--text-main);
 }
 
 .booked-label {
   display: block;
   font-size: 10px;
-  color: #F87171;
+  color: var(--text-main);
   margin-top: 4px;
   text-transform: uppercase;
+  font-weight: bold;
 }
 
 /* DETAILS FORM */
 .details-form {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  border: 2px solid var(--text-main);
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -265,7 +252,8 @@
 
 .form-group label {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-main);
+  font-weight: bold;
 }
 
 .form-group input[type="text"],
@@ -274,18 +262,19 @@
 .form-group input[type="date"],
 .form-group input[type="time"],
 .form-group textarea {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: 2px solid var(--text-main);
   padding: 12px 16px;
   border-radius: 8px;
-  color: white;
+  color: var(--text-main);
   font-family: inherit;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #7c3aed;
+  border-color: var(--text-main);
+  box-shadow: 2px 2px 0 var(--text-main);
 }
 
 .checkbox-label {
@@ -294,14 +283,14 @@
   gap: 8px;
   cursor: pointer;
   font-size: 13px !important;
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: var(--text-main) !important;
   margin-top: 4px;
 }
 
 .char-count {
   align-self: flex-end;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-main);
 }
 
 /* SUMMARY CARD */
@@ -313,17 +302,17 @@
 }
 
 .booking-summary-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(124, 58, 237, 0.4);
+  background: transparent;
+  border: 2px solid var(--text-main);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 8px 8px 0 var(--text-main);
 }
 
 .booking-summary-card h3 {
   font-size: 20px;
   margin-bottom: 24px;
-  color: #fff;
+  color: var(--text-main);
 }
 
 .summary-details {
@@ -339,19 +328,20 @@
 }
 
 .summary-item .label {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-main);
   font-size: 14px;
+  font-weight: bold;
 }
 
 .summary-item .value {
-  color: white;
+  color: var(--text-main);
   font-weight: 500;
   text-align: right;
 }
 
 .summary-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  height: 2px;
+  background: var(--text-main);
   margin: 8px 0;
 }
 
@@ -364,15 +354,15 @@
 }
 
 .total-price {
-  color: #F59E0B;
+  color: var(--text-main);
   font-size: 24px;
 }
 
 .confirm-btn {
   width: 100%;
-  background: linear-gradient(135deg, #F59E0B, #D97706);
-  color: white;
-  border: none;
+  background: var(--primary);
+  color: var(--text-main);
+  border: 2px solid var(--text-main);
   padding: 16px;
   border-radius: 12px;
   font-size: 16px;
@@ -384,7 +374,7 @@
 
 .confirm-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+  box-shadow: 4px 4px 0 var(--text-main);
 }
 
 /* RESPONSIVE */

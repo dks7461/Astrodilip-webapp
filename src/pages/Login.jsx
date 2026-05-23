@@ -42,7 +42,7 @@ const Login = () => {
         localStorage.removeItem('redirect_after_login');
         navigate(redirectUrl);
       } else {
-        navigate('/consultation');
+        navigate('/booking');
       }
     } catch (err) {
       setError(err.message);
@@ -95,3 +95,4 @@ const Login = () => {
 };
 
 export default Login;
+

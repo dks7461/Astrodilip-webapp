@@ -1,4 +1,4 @@
-.auth-container {
+﻿.auth-container {
   min-height: 80vh;
   display: flex;
   align-items: center;
@@ -18,7 +18,7 @@
 }
 
 .auth-card h2 {
-  color: #fff;
+  color: var(--text-main);
   margin-bottom: 0.5rem;
   font-family: var(--font-serif);
 }
@@ -50,10 +50,10 @@
 .input-group input {
   width: 100%;
   padding: 1rem 1rem 1rem 3rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
+  background: transparent;
+  border: 1px solid var(--text-main);
   border-radius: 12px;
-  color: #fff;
+  color: var(--text-main);
   font-family: var(--font-sans);
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -61,13 +61,13 @@
 }
 
 .input-group input:focus {
-  border-color: var(--primary-light);
-  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.3);
+  background: transparent;
 }
 
 .input-group input::placeholder {
-  color: #6B7280;
+  color: rgba(26, 20, 0, 0.6);
 }
 
 .auth-error {
@@ -96,6 +96,8 @@
 }
 
 .auth-link:hover {
-  color: #fff;
+  color: var(--text-main);
   text-decoration: underline;
 }
+
+

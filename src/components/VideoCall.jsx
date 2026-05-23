@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { Mic, MicOff, Video, VideoOff, PhoneOff } from 'lucide-react';
 import './VideoCall.css';
 
-// ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // TURN + STUN servers — multiple fallbacks so real-network calls work
-// ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ICE_SERVERS = {
   iceServers: [
     // Google STUN (works on same network / simple cases)
@@ -75,7 +75,7 @@ const VideoCall = ({
   const [callStatus,   setCallStatus]   = useState('connecting');
   const [callDuration, setCallDuration] = useState(0);
 
-  // ── Local stream ──
+  // â”€â”€ Local stream â”€â”€
   const startLocalStream = async () => {
     if (localStreamRef.current) return localStreamRef.current;
     try {
@@ -94,7 +94,7 @@ const VideoCall = ({
     }
   };
 
-  // ── Safe ICE candidate queuing ──
+  // â”€â”€ Safe ICE candidate queuing â”€â”€
   const safeAddIce = async (candidate) => {
     if (!pcRef.current) return;
     if (remoteDescReadyRef.current) {
@@ -114,7 +114,7 @@ const VideoCall = ({
     iceQueueRef.current = [];
   };
 
-  // ── Create peer connection ──
+  // â”€â”€ Create peer connection â”€â”€
   const createPC = (stream, targetId) => {
     if (pcRef.current) return pcRef.current;
     const pc = new RTCPeerConnection(ICE_SERVERS);
@@ -185,7 +185,7 @@ const VideoCall = ({
     return pc;
   };
 
-  // ── CALLER: create and send offer ──
+  // â”€â”€ CALLER: create and send offer â”€â”€
   const doStartCall = async (targetId) => {
     if (callStartedRef.current) return;
     callStartedRef.current = true;
@@ -209,7 +209,7 @@ const VideoCall = ({
     console.log('Sent webrtc_offer to', targetId || liveTargetRef.current);
   };
 
-  // ── CALLEE: handle offer and send answer ──
+  // â”€â”€ CALLEE: handle offer and send answer â”€â”€
   const handleOffer = async (offer, callerSockId) => {
     if (callerSockId) liveTargetRef.current = callerSockId;
 
@@ -227,7 +227,7 @@ const VideoCall = ({
     console.log('Sent webrtc_answer to', callerSockId);
   };
 
-  // ── End call ──
+  // â”€â”€ End call â”€â”€
   const handleEndCall = () => {
     clearInterval(timerRef.current);
     clearTimeout(disconnTimerRef.current);
@@ -259,7 +259,7 @@ const VideoCall = ({
     return `${m}:${(s % 60).toString().padStart(2, '0')}`;
   };
 
-  // ── Main effect ──
+  // â”€â”€ Main effect â”€â”€
   useEffect(() => {
     startLocalStream();
 
@@ -323,9 +323,9 @@ const VideoCall = ({
             <div>
               <div className="vc-caller-name">{remoteUserName || 'User'}</div>
               <div className="vc-status">
-                {callStatus === 'connecting' && '⏳ Connecting...'}
-                {callStatus === 'active'     && `🟢 ${formatDuration(callDuration)}`}
-                {callStatus === 'ended'      && '📴 Call Ended'}
+                {callStatus === 'connecting' && 'â³ Connecting...'}
+                {callStatus === 'active'     && `ðŸŸ¢ ${formatDuration(callDuration)}`}
+                {callStatus === 'ended'      && 'ðŸ“´ Call Ended'}
               </div>
             </div>
           </div>
@@ -377,3 +377,4 @@ const VideoCall = ({
 };
 
 export default VideoCall;
+

@@ -25,7 +25,7 @@ const Footer = () => {
             <h4>Quick Links</h4>
             <ul>
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/consultation">Book Consultation</Link></li>
+              <li><Link to="/booking">Book Consultation</Link></li>
               <li><Link to="/courses">Astrology Courses</Link></li>
               <li><Link to="/calculators">Free Calculators</Link></li>
               <li><Link to="/reports">Detailed Reports</Link></li>
@@ -38,7 +38,7 @@ const Footer = () => {
               <li><Link to="/reports">Kundli Matching</Link></li>
               <li><Link to="/reports">Personal Horoscope</Link></li>
               <li><Link to="/reports">Numerology Report</Link></li>
-              <li><Link to="/consultation">Online Puja</Link></li>
+              <li><Link to="/booking">Online Puja</Link></li>
               <li><Link to="/reports">Vastu Consultation</Link></li>
             </ul>
           </div>
@@ -75,3 +75,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

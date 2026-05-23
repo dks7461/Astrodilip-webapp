@@ -1,6 +1,6 @@
-.footer {
-  background: var(--bg-card);
-  border-top: 1px solid var(--glass-border);
+﻿.footer {
+  background: var(--bg-main);
+  border-top: 2px solid var(--text-main);
   padding: 5rem 0 0;
   margin-top: auto;
 }
@@ -13,13 +13,13 @@
 }
 
 .footer-about h3 {
-  color: var(--accent);
+  color: var(--accent-main);
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
 }
 
 .footer-about p {
-  color: var(--text-muted);
+  color: var(--text-main);
   margin-bottom: 1.5rem;
   line-height: 1.8;
 }
@@ -35,25 +35,26 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: var(--glass);
-  color: var(--secondary);
-  border: 1px solid var(--glass-border);
+  border-radius: 0;
+  background: var(--bg-main);
+  color: var(--text-main);
+  border: 2px solid var(--text-main);
   transition: all 0.3s ease;
 }
 
 .social-links a:hover {
-  background: var(--primary);
-  color: #fff;
+  background: var(--accent-main);
+  color: var(--bg-main);
   transform: translateY(-3px);
-  border-color: var(--primary-light);
+  border-color: var(--accent-main);
 }
 
 .footer h4 {
-  color: #fff;
+  color: var(--text-main);
   font-size: 1.2rem;
   margin-bottom: 1.5rem;
   font-family: var(--font-sans);
+  font-weight: 700;
 }
 
 .footer ul {
@@ -63,12 +64,12 @@
 }
 
 .footer ul li a {
-  color: var(--text-muted);
+  color: var(--text-main);
   transition: color 0.3s ease;
 }
 
 .footer ul li a:hover {
-  color: var(--accent);
+  color: var(--accent-main);
   padding-left: 5px;
 }
 
@@ -76,11 +77,11 @@
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 .footer-contact ul li svg {
-  color: var(--accent);
+  color: var(--accent-main);
   margin-top: 3px;
 }
 
@@ -89,8 +90,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 2rem 0;
-  border-top: 1px solid var(--glass-border);
-  color: var(--text-muted);
+  border-top: 2px solid var(--text-main);
+  color: var(--text-main);
   font-size: 0.9rem;
 }
 
@@ -100,7 +101,7 @@
 }
 
 .footer-bottom-links a:hover {
-  color: var(--accent);
+  color: var(--accent-main);
 }
 
 @media (max-width: 992px) {
@@ -119,3 +120,4 @@
     text-align: center;
   }
 }
+

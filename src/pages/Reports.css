@@ -1,4 +1,4 @@
-.reports-page {
+﻿.reports-page {
   padding: 8rem 0 5rem;
   min-height: 100vh;
 }
@@ -7,7 +7,7 @@
   text-align: center;
   max-width: 600px;
   margin: 0 auto 4rem;
-  color: var(--text-muted);
+  color: var(--text-main);
   font-size: 1.1rem;
 }
 
@@ -41,26 +41,30 @@
 }
 
 .form-group label {
-  font-weight: 500;
-  color: var(--secondary);
+  font-weight: 600;
+  color: #1A1400;
   font-size: 0.95rem;
 }
 
 .form-group input {
   padding: 1rem;
   border-radius: 10px;
-  border: 1px solid var(--glass-border);
-  background: rgba(0, 0, 0, 0.3);
-  color: #fff;
+  border: 1px solid #1A1400;
+  background: transparent;
+  color: #1A1400;
   font-family: var(--font-sans);
   font-size: 1rem;
   outline: none;
   transition: all 0.3s ease;
 }
 
+.form-group input::placeholder {
+  color: rgba(26, 20, 0, 0.6);
+}
+
 .form-group input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(255, 213, 79, 0.2);
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.2);
 }
 
 .submit-btn {
@@ -108,8 +112,9 @@
 }
 
 .empty-state p {
-  color: var(--text-muted);
+  color: #1A1400;
   z-index: 1;
+  font-weight: 500;
 }
 
 .error-message {
@@ -171,7 +176,7 @@
 }
 
 .stat-box h4 {
-  color: #fff;
+  color: var(--text-main);
   font-size: 1.2rem;
   margin: 0;
 }
@@ -194,14 +199,14 @@
   display: flex;
   justify-content: space-between;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(26, 20, 0, 0.1);
   border-radius: 10px;
   border-left: 3px solid var(--primary-light);
 }
 
 .planet-name {
   font-weight: 600;
-  color: #fff;
+  color: var(--text-main);
 }
 
 .planet-house {
@@ -254,3 +259,5 @@
     grid-template-columns: 1fr;
   }
 }
+
+

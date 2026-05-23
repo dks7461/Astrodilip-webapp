@@ -14,7 +14,7 @@ const STICKERS = [
   'https://cdn-icons-png.flaticon.com/128/3306/3306528.png',
 ];
 
-const EMOJIS = ['😊', '😂', '🥺', '🙏', '❤️', '👍', '✨', '🔥', '🙌', '💯', '🔮', '🕉️'];
+const EMOJIS = ['ðŸ˜Š', 'ðŸ˜‚', 'ðŸ¥º', 'ðŸ™', 'â¤ï¸', 'ðŸ‘', 'âœ¨', 'ðŸ”¥', 'ðŸ™Œ', 'ðŸ’¯', 'ðŸ”®', 'ðŸ•‰ï¸'];
 
 const Admin = () => {
   const [clients, setClients] = useState([]);
@@ -29,11 +29,11 @@ const Admin = () => {
   const [showPicker, setShowPicker] = useState(false);
   const [pickerTab, setPickerTab] = useState('emoji');
 
-  // ── Call States ──
+  // â”€â”€ Call States â”€â”€
   const [activeCall, setActiveCall] = useState(null);
   const [incomingCall, setIncomingCall] = useState(null);
 
-  // ── New Admin Panel States ──
+  // â”€â”€ New Admin Panel States â”€â”€
   const [activeTab, setActiveTab] = useState('chat');
   const [allUsers, setAllUsers] = useState([]);
   const [allBookings, setAllBookings] = useState([]);
@@ -54,7 +54,7 @@ const Admin = () => {
   const fileInputRef = useRef(null);
   const pickerRef = useRef(null);
 
-  // ── Auto-Login on Refresh ──
+  // â”€â”€ Auto-Login on Refresh â”€â”€
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (token) {
@@ -86,7 +86,7 @@ const Admin = () => {
       setMessages((prev) => [...prev, msg]);
     });
 
-    // ── Call Signal Listeners ──
+    // â”€â”€ Call Signal Listeners â”€â”€
 
     // Incoming call from a client
     socket.on('incoming_call', ({ callerSocketId, callerName, callType }) => {
@@ -135,7 +135,7 @@ const Admin = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ── Fetch data when tabs change ──
+  // â”€â”€ Fetch data when tabs change â”€â”€
   useEffect(() => {
     if (activeTab === 'users') fetchUsers();
     if (activeTab === 'bookings') fetchBookings();
@@ -279,7 +279,7 @@ const Admin = () => {
     setShowPicker(false);
   };
 
-  // ── Initiate a call to the active client ──
+  // â”€â”€ Initiate a call to the active client â”€â”€
   const startCall = (callType) => {
     if (!activeClient) return;
 
@@ -304,7 +304,7 @@ const Admin = () => {
     });
   };
 
-  // ── Accept incoming call ──
+  // â”€â”€ Accept incoming call â”€â”€
   const acceptCall = () => {
     if (!incomingCall) return;
 
@@ -325,7 +325,7 @@ const Admin = () => {
     setIncomingCall(null);
   };
 
-  // ── Reject incoming call ──
+  // â”€â”€ Reject incoming call â”€â”€
   const rejectCall = () => {
     if (incomingCall) {
       // BUG 5 FIX: Server expects 'callerSocketId' not 'targetSocketId'
@@ -381,7 +381,7 @@ const Admin = () => {
     }
   }
 
-  // ── Render: Active Call Overlay ──
+  // â”€â”€ Render: Active Call Overlay â”€â”€
   if (activeCall) {
     return (
       <VideoCall
@@ -433,7 +433,7 @@ const Admin = () => {
     : allBookings.filter(b => b.status === bookingFilter.toLowerCase());
 
   return (
-    <div className="admin-dashboard-wrapper" style={{ display: 'flex', flexDirection: 'column', height: '100vh', paddingTop: '80px', background: '#0a0a1a' }}>
+    <div className="admin-dashboard-wrapper" style={{ display: 'flex', flexDirection: 'column', height: '100vh', paddingTop: '80px', background: 'transparent' }}>
       
       {/* Incoming call notification */}
       {incomingCall && (
@@ -446,26 +446,34 @@ const Admin = () => {
       )}
 
       {/* Top Navigation Tab Bar */}
-      <div className="admin-tab-bar" style={{ display: 'flex', gap: '20px', padding: '0 24px', background: '#0a0a1a', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <button onClick={() => setActiveTab('chat')} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'chat' ? '2px solid #F59E0B' : '2px solid transparent', color: activeTab === 'chat' ? '#F59E0B' : 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
+      <div className="admin-tab-bar" style={{ display: 'flex', gap: '20px', padding: '0 24px', background: 'transparent', borderBottom: '2px solid #1A1400' }}>
+        <button onClick={() => { setActiveTab('chat'); setActiveClient(null); }} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'chat' ? '3px solid #FF6B00' : '3px solid transparent', color: activeTab === 'chat' ? '#FF6B00' : '#1A1400', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
           <Smile size={18} /> Live Chat
         </button>
-        <button onClick={() => setActiveTab('users')} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'users' ? '2px solid #F59E0B' : '2px solid transparent', color: activeTab === 'users' ? '#F59E0B' : 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
+        <button onClick={() => { setActiveTab('audio'); setActiveClient(null); }} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'audio' ? '3px solid #FF6B00' : '3px solid transparent', color: activeTab === 'audio' ? '#FF6B00' : '#1A1400', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
+          <Phone size={18} /> Audio Calls
+        </button>
+        <button onClick={() => { setActiveTab('video'); setActiveClient(null); }} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'video' ? '3px solid #FF6B00' : '3px solid transparent', color: activeTab === 'video' ? '#FF6B00' : '#1A1400', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
+          <Video size={18} /> Video Calls
+        </button>
+        <button onClick={() => { setActiveTab('users'); setActiveClient(null); }} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'users' ? '3px solid #FF6B00' : '3px solid transparent', color: activeTab === 'users' ? '#FF6B00' : '#1A1400', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
           <Users size={18} /> Users
         </button>
-        <button onClick={() => setActiveTab('bookings')} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'bookings' ? '2px solid #F59E0B' : '2px solid transparent', color: activeTab === 'bookings' ? '#F59E0B' : 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
+        <button onClick={() => setActiveTab('bookings')} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'bookings' ? '3px solid #FF6B00' : '3px solid transparent', color: activeTab === 'bookings' ? '#FF6B00' : '#1A1400', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
           <Calendar size={18} /> Bookings
         </button>
-        <button onClick={() => setActiveTab('stats')} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'stats' ? '2px solid #F59E0B' : '2px solid transparent', color: activeTab === 'stats' ? '#F59E0B' : 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
+        <button onClick={() => setActiveTab('stats')} className="admin-tab" style={{ padding: '16px 8px', background: 'transparent', border: 'none', borderBottom: activeTab === 'stats' ? '3px solid #FF6B00' : '3px solid transparent', color: activeTab === 'stats' ? '#FF6B00' : '#1A1400', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', outline: 'none' }}>
           <BarChart3 size={18} /> Stats
         </button>
       </div>
 
       <div className="admin-content-area" style={{ flex: 1, overflow: 'hidden' }}>
         
-        {/* === CHAT TAB (Existing UI) === */}
-        {activeTab === 'chat' && (
-          <div className="admin-dashboard" style={{ height: '100%', margin: 0, padding: 0 }}>
+        {/* === SESSIONS TAB (Chat, Audio, Video) === */}
+        {['chat', 'audio', 'video'].includes(activeTab) && (() => {
+          const filteredClients = clients.filter(c => (c.consultationType || 'chat') === activeTab);
+          return (
+            <div className="admin-dashboard" style={{ height: '100%', margin: 0, padding: 0 }}>
             {/* Left Sidebar */}
             <div className="admin-sidebar">
               <div className="sidebar-header">
@@ -474,10 +482,10 @@ const Admin = () => {
               </div>
 
               <div className="client-list">
-                {clients.length === 0 ? (
-                  <p className="no-clients">No active clients</p>
+                {filteredClients.length === 0 ? (
+                  <p className="no-clients">No active clients in this queue</p>
                 ) : (
-                  clients.map((client) => (
+                  filteredClients.map((client) => (
                     <div
                       key={client.id}
                       className={`admin-client-card ${activeClient?.userId === client.userId ? 'active' : ''}`}
@@ -513,7 +521,7 @@ const Admin = () => {
                       </div>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <h3 style={{ color: '#fff', margin: 0, fontSize: '16px' }}>{activeClient.name}</h3>
+                          <h3 style={{ color: '#1A1400', margin: 0, fontSize: '16px' }}>{activeClient.name}</h3>
                           <span style={{ color: '#10B981', fontSize: '12px' }}>Online</span>
                         </div>
                         <p className="subtitle">Consultation Session</p>
@@ -521,21 +529,29 @@ const Admin = () => {
                     </div>
 
                     <div className="header-actions">
-                      <button
-                        className="action-pill"
-                        title="Voice Call"
-                        onClick={() => startCall('audio')}
-                      >
-                        <Phone size={16} /> Call
-                      </button>
-                      <button
-                        className="action-btn"
-                        title="Video Call"
-                        onClick={() => startCall('video')}
-                        style={{ border: 'none', marginLeft: '5px' }}
-                      >
-                        <Video size={18} />
-                      </button>
+                      {activeTab === 'audio' && (
+                        <button
+                          className="action-pill"
+                          title="Start Audio Call"
+                          onClick={() => startCall('audio')}
+                          style={{ background: '#F59E0B', color: '#1A1400', border: '1px solid #1A1400', fontWeight: 'bold' }}
+                        >
+                          <Phone size={16} /> Call Client
+                        </button>
+                      )}
+                      {activeTab === 'video' && (
+                        <button
+                          className="action-pill"
+                          title="Start Video Call"
+                          onClick={() => startCall('video')}
+                          style={{ background: '#F59E0B', color: '#1A1400', border: '1px solid #1A1400', fontWeight: 'bold' }}
+                        >
+                          <Video size={16} /> Call Client
+                        </button>
+                      )}
+                      {activeTab === 'chat' && (
+                        <span style={{ fontSize: '12px', color: '#666' }}>Chat strictly for text.</span>
+                      )}
                       <button className="action-btn" style={{ border: 'none', marginLeft: '5px' }}>
                         <MoreVertical size={18} />
                       </button>
@@ -602,7 +618,7 @@ const Admin = () => {
                                         href={msg.file.dataUrl}
                                         download={msg.file.name}
                                         style={{
-                                          fontSize: '12px', color: '#fff', textDecoration: 'none',
+                                          fontSize: '12px', color: '#1A1400', textDecoration: 'none',
                                           background: 'rgba(124,58,237,0.4)', borderRadius: '12px',
                                           padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '4px', flex: 1, justifyContent: 'center',
                                         }}
@@ -723,53 +739,54 @@ const Admin = () => {
               )}
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* === USERS TAB === */}
         {activeTab === 'users' && (
           <div className="admin-panel-content" style={{ padding: '24px', overflowY: 'auto', height: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ margin: 0, color: '#fff' }}>All Registered Users <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 12px', borderRadius: '12px', fontSize: '14px', marginLeft: '12px' }}>{allUsers.length}</span></h2>
+              <h2 style={{ margin: 0, color: '#1A1400' }}>All Registered Users <span style={{ background: 'rgba(26, 20, 0, 0.1)', padding: '4px 12px', borderRadius: '12px', fontSize: '14px', marginLeft: '12px' }}>{allUsers.length}</span></h2>
               <div style={{ position: 'relative' }}>
-                <Search size={18} style={{ position: 'absolute', left: '12px', top: '10px', color: 'rgba(255,255,255,0.5)' }} />
+                <Search size={18} style={{ position: 'absolute', left: '12px', top: '10px', color: '#1A1400' }} />
                 <input 
                   type="text" 
                   placeholder="Search name or email..." 
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '8px 12px 8px 36px', color: '#fff', outline: 'none' }} 
+                  style={{ background: 'rgba(26, 20, 0, 0.1)', border: '1px solid rgba(26, 20, 0, 0.1)', borderRadius: '8px', padding: '8px 12px 8px 36px', color: '#1A1400', outline: 'none' }} 
                 />
               </div>
             </div>
 
-            {loading ? <div style={{ color: '#fff', textAlign: 'center', padding: '40px' }}>Loading users...</div> : filteredUsers.length === 0 ? <div style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '40px' }}>No users found.</div> : (
-              <div style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', textAlign: 'left', minWidth: '600px' }}>
+            {loading ? <div style={{ color: '#1A1400', textAlign: 'center', padding: '40px' }}>Loading users...</div> : filteredUsers.length === 0 ? <div style={{ color: '#1A1400', textAlign: 'center', padding: '40px' }}>No users found.</div> : (
+              <div style={{ overflowX: 'auto', background: 'rgba(26, 20, 0, 0.1)', border: '1px solid rgba(26, 20, 0, 0.1)', borderRadius: '12px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#1A1400', textAlign: 'left', minWidth: '600px' }}>
                   <thead>
-                    <tr style={{ background: 'rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                      <th style={{ padding: '16px' }}>#</th>
-                      <th style={{ padding: '16px' }}>Name</th>
-                      <th style={{ padding: '16px' }}>Email</th>
-                      <th style={{ padding: '16px' }}>Phone</th>
-                      <th style={{ padding: '16px' }}>Joined Date</th>
-                      <th style={{ padding: '16px' }}>Actions</th>
+                    <tr style={{ background: '#FF6B00', borderBottom: '1px solid #1A1400' }}>
+                      <th style={{ padding: '16px', color: '#1A1400' }}>#</th>
+                      <th style={{ padding: '16px', color: '#1A1400' }}>Name</th>
+                      <th style={{ padding: '16px', color: '#1A1400' }}>Email</th>
+                      <th style={{ padding: '16px', color: '#1A1400' }}>Phone</th>
+                      <th style={{ padding: '16px', color: '#1A1400' }}>Joined Date</th>
+                      <th style={{ padding: '16px', color: '#1A1400' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredUsers.map((user, i) => (
-                      <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }}>
-                        <td style={{ padding: '16px', color: 'rgba(255,255,255,0.5)' }}>{i + 1}</td>
+                      <tr key={user._id} style={{ borderBottom: '1px solid #1A1400', transition: 'background 0.2s' }}>
+                        <td style={{ padding: '16px', color: '#1A1400' }}>{i + 1}</td>
                         <td style={{ padding: '16px', fontWeight: 'bold' }}>{user.name}</td>
-                        <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{user.email}</td>
-                        <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{user.phone || 'Not provided'}</td>
-                        <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{formatDate(user.createdAt)}</td>
+                        <td style={{ padding: '16px', color: '#1A1400' }}>{user.email}</td>
+                        <td style={{ padding: '16px', color: '#1A1400' }}>{user.phone || 'Not provided'}</td>
+                        <td style={{ padding: '16px', color: '#1A1400' }}>{formatDate(user.createdAt)}</td>
                         <td style={{ padding: '16px', display: 'flex', gap: '8px', alignItems: 'center', position: 'relative' }}>
-                          <button onClick={() => setSelectedUser(user)} style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>View</button>
+                          <button onClick={() => setSelectedUser(user)} style={{ background: '#FF6B00', color: '#1A1400', border: '2px solid #1A1400', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>View</button>
                           
                           <div style={{ position: 'relative' }}>
                             <button 
                               onClick={() => setActiveMenuDropdownId(activeMenuDropdownId === user._id ? null : user._id)} 
-                              style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
+                              style={{ background: 'transparent', border: '2px solid #1A1400', color: '#1A1400', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
                             >
                               <MoreVertical size={16} />
                             </button>
@@ -777,13 +794,13 @@ const Admin = () => {
                             {activeMenuDropdownId === user._id && (
                               <div style={{
                                 position: 'absolute', right: 0, top: '100%', zIndex: 10,
-                                background: '#13102A', border: '1px solid rgba(255,255,255,0.1)',
+                                background: '#FFF', border: '2px solid #1A1400',
                                 borderRadius: '8px', padding: '8px', minWidth: '120px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.5)', marginTop: '4px'
+                                boxShadow: '4px 4px 0 #1A1400', marginTop: '4px'
                               }}>
                                 <button 
                                   onClick={() => { setActiveMenuDropdownId(null); deleteUser(user._id); }} 
-                                  style={{ background: 'transparent', color: '#dc2626', border: 'none', width: '100%', textAlign: 'left', padding: '8px 12px', cursor: 'pointer', fontSize: '13px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                  style={{ background: 'transparent', color: '#1A1400', border: 'none', width: '100%', textAlign: 'left', padding: '8px 12px', cursor: 'pointer', fontSize: '13px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}
                                 >
                                   <Trash2 size={14} /> Delete
                                 </button>
@@ -804,13 +821,13 @@ const Admin = () => {
         {activeTab === 'bookings' && (
           <div className="admin-panel-content" style={{ padding: '24px', overflowY: 'auto', height: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-              <h2 style={{ margin: 0, color: '#fff' }}>All Bookings <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 12px', borderRadius: '12px', fontSize: '14px', marginLeft: '12px' }}>{filteredBookings.length}</span></h2>
-              <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <h2 style={{ margin: 0, color: '#1A1400' }}>All Bookings <span style={{ background: 'rgba(26, 20, 0, 0.1)', padding: '4px 12px', borderRadius: '12px', fontSize: '14px', marginLeft: '12px' }}>{filteredBookings.length}</span></h2>
+              <div style={{ display: 'flex', gap: '8px', background: 'rgba(26, 20, 0, 0.1)', padding: '4px', borderRadius: '8px', border: '1px solid rgba(26, 20, 0, 0.1)' }}>
                 {['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'].map(filter => (
                   <button 
                     key={filter} 
                     onClick={() => setBookingFilter(filter)}
-                    style={{ background: bookingFilter === filter ? 'rgba(255,255,255,0.1)' : 'transparent', color: bookingFilter === filter ? '#fff' : 'rgba(255,255,255,0.5)', border: 'none', padding: '6px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: bookingFilter === filter ? 'bold' : 'normal' }}
+                    style={{ background: bookingFilter === filter ? '#1A1400' : 'transparent', color: bookingFilter === filter ? '#FFE999' : '#1A1400', border: 'none', padding: '6px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: bookingFilter === filter ? 'bold' : 'normal' }}
                   >
                     {filter}
                   </button>
@@ -818,11 +835,11 @@ const Admin = () => {
               </div>
             </div>
 
-            {loading ? <div style={{ color: '#fff', textAlign: 'center', padding: '40px' }}>Loading bookings...</div> : filteredBookings.length === 0 ? <div style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '40px' }}>No bookings found.</div> : (
-              <div style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', textAlign: 'left', minWidth: '800px' }}>
+            {loading ? <div style={{ color: '#1A1400', textAlign: 'center', padding: '40px' }}>Loading bookings...</div> : filteredBookings.length === 0 ? <div style={{ color: '#1A1400', textAlign: 'center', padding: '40px' }}>No bookings found.</div> : (
+              <div style={{ overflowX: 'auto', background: 'rgba(26, 20, 0, 0.1)', border: '1px solid rgba(26, 20, 0, 0.1)', borderRadius: '12px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#1A1400', textAlign: 'left', minWidth: '800px' }}>
                   <thead>
-                    <tr style={{ background: 'rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                    <tr style={{ background: 'rgba(26, 20, 0, 0.1)', borderBottom: '1px solid rgba(26, 20, 0, 0.1)' }}>
                       <th style={{ padding: '16px' }}>#</th>
                       <th style={{ padding: '16px' }}>Client Name</th>
                       <th style={{ padding: '16px' }}>Date</th>
@@ -835,13 +852,13 @@ const Admin = () => {
                   </thead>
                   <tbody>
                     {filteredBookings.map((b, i) => (
-                      <tr key={b._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '16px', color: 'rgba(255,255,255,0.5)' }}>{i + 1}</td>
+                      <tr key={b._id} style={{ borderBottom: '1px solid rgba(26, 20, 0, 0.1)' }}>
+                        <td style={{ padding: '16px', color: '#1A1400' }}>{i + 1}</td>
                         <td style={{ padding: '16px', fontWeight: 'bold' }}>{b.userName || 'Unknown'}</td>
-                        <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{b.date || 'N/A'}</td>
-                        <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{b.timeSlot || 'N/A'}</td>
+                        <td style={{ padding: '16px', color: '#1A1400' }}>{b.date || 'N/A'}</td>
+                        <td style={{ padding: '16px', color: '#1A1400' }}>{b.timeSlot || 'N/A'}</td>
                         <td style={{ padding: '16px' }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '12px', fontSize: '12px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(26, 20, 0, 0.1)', padding: '4px 10px', borderRadius: '12px', fontSize: '12px' }}>
                             {b.consultationType === 'video' ? <Video size={12} /> : b.consultationType === 'audio' ? <Phone size={12} /> : <Smile size={12} />}
                             {b.consultationType?.toUpperCase() || 'CHAT'}
                           </span>
@@ -859,14 +876,14 @@ const Admin = () => {
                         <td style={{ padding: '16px', display: 'flex', gap: '8px' }}>
                           {b.status === 'pending' && (
                             <>
-                              <button onClick={() => updateBookingStatus(b._id, 'confirmed')} style={{ background: '#10B981', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Confirm</button>
-                              <button onClick={() => updateBookingStatus(b._id, 'cancelled')} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
+                              <button onClick={() => updateBookingStatus(b._id, 'confirmed')} style={{ background: '#FF6B00', color: '#1A1400', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Confirm</button>
+                              <button onClick={() => updateBookingStatus(b._id, 'cancelled')} style={{ background: 'transparent', border: '2px solid #1A1400', color: '#1A1400', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
                             </>
                           )}
                           {b.status === 'confirmed' && (
                             <>
-                              <button onClick={() => updateBookingStatus(b._id, 'completed')} style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Complete</button>
-                              <button onClick={() => updateBookingStatus(b._id, 'cancelled')} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
+                              <button onClick={() => updateBookingStatus(b._id, 'completed')} style={{ background: '#FF6B00', color: '#1A1400', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Complete</button>
+                              <button onClick={() => updateBookingStatus(b._id, 'cancelled')} style={{ background: 'transparent', border: '2px solid #1A1400', color: '#1A1400', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
                               <button onClick={() => handleNotifyUser(b)} title="Notify User" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid #F59E0B', color: '#F59E0B', padding: '6px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Bell size={16} />
                               </button>
@@ -876,7 +893,7 @@ const Admin = () => {
                             <Eye size={16} />
                           </button>
                           {(b.status === 'completed' || b.status === 'cancelled') && (
-                            <span style={{ color: 'rgba(255,255,255,0.3)' }}>—</span>
+                            <span style={{ color: '#1A1400' }}>—</span>
                           )}
                         </td>
                       </tr>
@@ -891,9 +908,9 @@ const Admin = () => {
         {/* === STATS TAB === */}
         {activeTab === 'stats' && (
           <div className="admin-panel-content" style={{ padding: '24px', overflowY: 'auto', height: '100%' }}>
-            <h2 style={{ margin: '0 0 24px 0', color: '#fff' }}>Dashboard Overview</h2>
+            <h2 style={{ margin: '0 0 24px 0', color: '#1A1400' }}>Dashboard Overview</h2>
             
-            {loading || !stats ? <div style={{ color: '#fff', textAlign: 'center', padding: '40px' }}>Loading stats...</div> : (
+            {loading || !stats ? <div style={{ color: '#1A1400', textAlign: 'center', padding: '40px' }}>Loading stats...</div> : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '40px' }}>
                   
@@ -901,38 +918,38 @@ const Admin = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#A78BFA' }}>
                       <Users size={24} /> <span style={{ fontWeight: 'bold' }}>Total Users</span>
                     </div>
-                    <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#fff' }}>{stats.totalUsers}</div>
+                    <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#1A1400' }}>{stats.totalUsers}</div>
                   </div>
 
                   <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05))', border: '1px solid rgba(245,158,11,0.2)', padding: '24px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#FBBF24' }}>
                       <Calendar size={24} /> <span style={{ fontWeight: 'bold' }}>Total Bookings</span>
                     </div>
-                    <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#fff' }}>{stats.totalBookings}</div>
+                    <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#1A1400' }}>{stats.totalBookings}</div>
                   </div>
 
                   <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05))', border: '1px solid rgba(16,185,129,0.2)', padding: '24px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#34D399' }}>
                       <CheckCircle size={24} /> <span style={{ fontWeight: 'bold' }}>Completed Sessions</span>
                     </div>
-                    <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#fff' }}>{stats.completedSessions}</div>
+                    <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#1A1400' }}>{stats.completedSessions}</div>
                   </div>
 
                   <div style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.05))', border: '1px solid rgba(59,130,246,0.2)', padding: '24px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#60A5FA' }}>
                       <BarChart3 size={24} /> <span style={{ fontWeight: 'bold' }}>Total Revenue</span>
                     </div>
-                    <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#fff' }}>₹{stats.totalRevenue}</div>
+                    <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#1A1400' }}>₹{stats.totalRevenue}</div>
                   </div>
 
                 </div>
 
-                <h3 style={{ margin: '0 0 16px 0', color: '#fff' }}>Recent Bookings</h3>
-                {stats.recentBookings.length === 0 ? <p style={{ color: 'rgba(255,255,255,0.5)' }}>No bookings yet.</p> : (
-                  <div style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', textAlign: 'left', minWidth: '600px' }}>
+                <h3 style={{ margin: '0 0 16px 0', color: '#1A1400' }}>Recent Bookings</h3>
+                {stats.recentBookings.length === 0 ? <p style={{ color: '#1A1400' }}>No bookings yet.</p> : (
+                  <div style={{ overflowX: 'auto', background: 'rgba(26, 20, 0, 0.1)', border: '1px solid rgba(26, 20, 0, 0.1)', borderRadius: '12px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', color: '#1A1400', textAlign: 'left', minWidth: '600px' }}>
                       <thead>
-                        <tr style={{ background: 'rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                        <tr style={{ background: 'rgba(26, 20, 0, 0.1)', borderBottom: '1px solid rgba(26, 20, 0, 0.1)' }}>
                           <th style={{ padding: '16px' }}>Client</th>
                           <th style={{ padding: '16px' }}>Date & Time</th>
                           <th style={{ padding: '16px' }}>Type</th>
@@ -942,9 +959,9 @@ const Admin = () => {
                       </thead>
                       <tbody>
                         {stats.recentBookings.map((b) => (
-                          <tr key={b._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                          <tr key={b._id} style={{ borderBottom: '1px solid rgba(26, 20, 0, 0.1)' }}>
                             <td style={{ padding: '16px', fontWeight: 'bold' }}>{b.userName || 'Unknown'}</td>
-                            <td style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>{b.date} • {b.timeSlot}</td>
+                            <td style={{ padding: '16px', color: '#1A1400' }}>{b.date} • {b.timeSlot}</td>
                             <td style={{ padding: '16px', textTransform: 'capitalize' }}>{b.consultationType}</td>
                             <td style={{ padding: '16px', color: '#10B981' }}>₹{b.amount}</td>
                             <td style={{ padding: '16px' }}>
@@ -972,10 +989,10 @@ const Admin = () => {
       {/* User Details Modal */}
       {selectedUser && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-          <div style={{ background: '#0a0a1a', border: '1px solid rgba(124,58,237,0.4)', borderRadius: '16px', width: '90%', maxWidth: '400px', padding: '24px', position: 'relative' }}>
-            <button onClick={() => setSelectedUser(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}><X size={20} /></button>
-            <h2 style={{ margin: '0 0 20px 0', color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px' }}>User Details</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', color: 'rgba(255,255,255,0.8)' }}>
+          <div style={{ background: 'transparent', border: '1px solid rgba(124,58,237,0.4)', borderRadius: '16px', width: '90%', maxWidth: '400px', padding: '24px', position: 'relative' }}>
+            <button onClick={() => setSelectedUser(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: '#1A1400', cursor: 'pointer' }}><X size={20} /></button>
+            <h2 style={{ margin: '0 0 20px 0', color: '#1A1400', borderBottom: '1px solid rgba(26, 20, 0, 0.1)', paddingBottom: '12px' }}>User Details</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', color: '#1A1400' }}>
               <div><strong style={{ color: '#F59E0B' }}>Name:</strong> {selectedUser.name}</div>
               <div><strong style={{ color: '#F59E0B' }}>Email:</strong> {selectedUser.email}</div>
               <div><strong style={{ color: '#F59E0B' }}>Phone:</strong> {selectedUser.phone || 'N/A'}</div>
@@ -985,7 +1002,7 @@ const Admin = () => {
               <div><strong style={{ color: '#F59E0B' }}>Messages Sent:</strong> {messages.filter(m => m.from === selectedUser._id).length}</div>
               <div><strong style={{ color: '#F59E0B' }}>Account Created:</strong> {formatDate(selectedUser.createdAt)}</div>
             </div>
-            <button onClick={() => setSelectedUser(null)} style={{ marginTop: '24px', width: '100%', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Close</button>
+            <button onClick={() => setSelectedUser(null)} style={{ marginTop: '24px', width: '100%', background: 'rgba(26, 20, 0, 0.1)', color: '#1A1400', border: 'none', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Close</button>
           </div>
         </div>
       )}
@@ -998,61 +1015,61 @@ const Admin = () => {
           alignItems: 'center', justifyContent: 'center'
         }}>
           <div style={{
-            background: '#0a0a1a', border: '1px solid rgba(255,255,255,0.1)',
+            background: 'transparent', border: '1px solid rgba(26, 20, 0, 0.1)',
             borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '560px',
-            color: '#fff', maxHeight: '90vh', overflowY: 'auto', position: 'relative'
+            color: '#1A1400', maxHeight: '90vh', overflowY: 'auto', position: 'relative'
           }}>
             <button onClick={() => setShowBookingModal(false)} style={{
               position: 'absolute', top: '24px', right: '24px', background: 'transparent',
-              border: 'none', color: '#fff', cursor: 'pointer'
+              border: 'none', color: '#1A1400', cursor: 'pointer'
             }}>
               <X size={24} />
             </button>
-            <h2 style={{ marginTop: 0, marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Booking Details</h2>
+            <h2 style={{ marginTop: 0, marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(26, 20, 0, 0.1)' }}>Booking Details</h2>
             
             {/* Section 1 */}
             <div style={{ marginBottom: '24px' }}>
               <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Appointment Info</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>ID:</span> {selectedBookingForModal._id}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Date:</span> {selectedBookingForModal.date}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Time:</span> {selectedBookingForModal.timeSlot}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Type:</span> {selectedBookingForModal.consultationType}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Status:</span> {selectedBookingForModal.status}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Amount:</span> ₹{selectedBookingForModal.amount}</div>
+                <div><span style={{ color: '#1A1400' }}>ID:</span> {selectedBookingForModal._id}</div>
+                <div><span style={{ color: '#1A1400' }}>Date:</span> {selectedBookingForModal.date}</div>
+                <div><span style={{ color: '#1A1400' }}>Time:</span> {selectedBookingForModal.timeSlot}</div>
+                <div><span style={{ color: '#1A1400' }}>Type:</span> {selectedBookingForModal.consultationType}</div>
+                <div><span style={{ color: '#1A1400' }}>Status:</span> {selectedBookingForModal.status}</div>
+                <div><span style={{ color: '#1A1400' }}>Amount:</span> ₹{selectedBookingForModal.amount}</div>
               </div>
             </div>
 
             {/* Section 2 */}
-            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(26, 20, 0, 0.1)' }}>
               <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Client Info</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Name:</span> {selectedBookingForModal.userName || 'N/A'}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>Phone:</span> {selectedBookingForModal.userPhone || 'N/A'}</div>
-                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'rgba(255,255,255,0.5)' }}>Email:</span> {selectedBookingForModal.userEmail || 'N/A'}</div>
+                <div><span style={{ color: '#1A1400' }}>Name:</span> {selectedBookingForModal.userName || 'N/A'}</div>
+                <div><span style={{ color: '#1A1400' }}>Phone:</span> {selectedBookingForModal.userPhone || 'N/A'}</div>
+                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#1A1400' }}>Email:</span> {selectedBookingForModal.userEmail || 'N/A'}</div>
               </div>
             </div>
 
             {/* Section 3 */}
-            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(26, 20, 0, 0.1)' }}>
               <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Astrological Details</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>DOB:</span> {modalDob}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.5)' }}>TOB:</span> {modalTob}</div>
-                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'rgba(255,255,255,0.5)' }}>Place:</span> {modalPob}</div>
+                <div><span style={{ color: '#1A1400' }}>DOB:</span> {modalDob}</div>
+                <div><span style={{ color: '#1A1400' }}>TOB:</span> {modalTob}</div>
+                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#1A1400' }}>Place:</span> {modalPob}</div>
               </div>
             </div>
 
             {/* Section 4 */}
-            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ marginBottom: '24px', paddingTop: '16px', borderTop: '1px solid rgba(26, 20, 0, 0.1)' }}>
               <h3 style={{ fontSize: '1.1rem', color: '#F59E0B', marginBottom: '12px' }}>Client's Question / Topic</h3>
-              <div style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '8px', fontSize: '0.9rem', lineHeight: '1.5' }}>
+              <div style={{ background: 'rgba(26, 20, 0, 0.1)', padding: '16px', borderRadius: '8px', fontSize: '0.9rem', lineHeight: '1.5' }}>
                 {modalQuestion}
               </div>
             </div>
 
             {selectedBookingForModal.status === 'confirmed' && (
-              <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(26, 20, 0, 0.1)', display: 'flex', justifyContent: 'flex-end' }}>
                 <button 
                   onClick={() => { handleNotifyUser(selectedBookingForModal); setShowBookingModal(false); }}
                   style={{ background: '#F59E0B', color: '#000', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -1069,3 +1086,9 @@ const Admin = () => {
 };
 
 export default Admin;
+
+
+
+
+
+

@@ -1,20 +1,20 @@
-.navbar {
+﻿.navbar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   padding: 1.5rem 0;
   z-index: 1000;
-  transition: all 0.3s ease;
-  background: transparent;
+  background: var(--bg-main);
+  transition: all 0.4s ease-in-out;
 }
 
 .navbar.scrolled {
-  background: rgba(10, 5, 18, 0.95);
-  backdrop-filter: blur(10px);
+  background: #FFFFFF;
+  backdrop-filter: none;
   padding: 1rem 0;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid var(--text-main);
 }
 
 .nav-container {
@@ -22,13 +22,15 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  max-width: 100%;
+  padding: 0 4rem;
 }
 
 .nav-logo {
   font-family: var(--font-serif);
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-main);
   text-transform: uppercase;
   letter-spacing: 1px;
   white-space: nowrap;
@@ -56,7 +58,7 @@
   left: 0;
   width: 0%;
   height: 2px;
-  background: var(--accent);
+  background: var(--accent-main);
   transition: width 0.3s ease;
 }
 
@@ -67,7 +69,7 @@
 
 .nav-links a:hover,
 .nav-links a.active-link {
-  color: var(--accent);
+  color: var(--accent-main);
 }
 
 .nav-actions {
@@ -80,19 +82,20 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-main);
+  border: 2px solid var(--text-main);
   padding: 0.5rem 1.2rem;
-  border-radius: 30px;
-  color: var(--accent);
+  border-radius: 0;
+  color: var(--text-main);
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .phone-btn:hover {
-  background: var(--accent);
-  color: var(--bg-dark);
-  box-shadow: 0 0 15px rgba(255, 213, 79, 0.4);
+  background: var(--accent-main);
+  color: var(--bg-main);
+  box-shadow: none;
+  border-color: var(--accent-main);
 }
 
 .mobile-menu-btn {
@@ -108,13 +111,13 @@
     top: 100%;
     left: 0;
     width: 100%;
-    background: rgba(10, 5, 18, 0.98);
-    backdrop-filter: blur(10px);
+    background: var(--bg-main);
+    backdrop-filter: none;
     flex-direction: column;
     padding: 2rem;
     gap: 1.5rem;
     text-align: center;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 2px solid var(--text-main);
   }
 
   .nav-links.active {
@@ -129,3 +132,4 @@
     display: none;
   }
 }
+

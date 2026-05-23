@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Shield, Users, BookOpen, Sun } from 'lucide-react';
 import './Home.css';
 import heroImg from '../assets/hero-image.png';
+import PanchangWidget from '../components/PanchangWidget';
 
 const ScrollReveal = ({ children, className = '' }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -86,7 +87,7 @@ const Home = () => {
               India's premier astrologer. Discover the cosmic blueprint of your life with expert Vedic astrology, numerology, and Vastu consultations.
             </p>
             <div className="hero-actions">
-              <Link to="/consultation" className="btn-primary">
+              <Link to="/booking" className="btn-primary">
                 Book Consultation <ArrowRight size={18} />
               </Link>
               <Link to="/calculators" className="btn-outline">
@@ -135,6 +136,15 @@ const Home = () => {
             ))}
           </div>
         </ScrollReveal>
+      </section>
+
+      {/* Today's Panchang Section */}
+      <section className="panchang-section" style={{ padding: '4rem 0 0 0', background: 'var(--bg-main)' }}>
+        <div className="container">
+          <ScrollReveal>
+            <PanchangWidget />
+          </ScrollReveal>
+        </div>
       </section>
 
       {/* Horoscope Section */}
@@ -206,3 +216,4 @@ const Home = () => {
 };
 
 export default Home;
+

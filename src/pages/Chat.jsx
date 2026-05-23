@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { Send, ArrowLeft, User, Phone, Video, Paperclip, Smile, CheckCheck, X, FileText, CalendarX, Clock, Bell } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import VideoCall from '../components/VideoCall';
-import CallNotification from '../components/CallNotification';
 import './Chat.css';
 
 const socket = io('https://astrodilip-webapp.onrender.com');
@@ -14,7 +12,7 @@ const STICKERS = [
   'https://cdn-icons-png.flaticon.com/128/3306/3306560.png',
   'https://cdn-icons-png.flaticon.com/128/3306/3306528.png',
 ];
-const EMOJIS = ['😊', '😂', '🥺', '🙏', '❤️', '👍', '✨', '🔥', '🙌', '💯', '🔮', '🕉️'];
+const EMOJIS = ['ðŸ˜Š', 'ðŸ˜‚', 'ðŸ¥º', 'ðŸ™', 'â¤ï¸', 'ðŸ‘', 'âœ¨', 'ðŸ”¥', 'ðŸ™Œ', 'ðŸ’¯', 'ðŸ”®', 'ðŸ•‰ï¸'];
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -25,13 +23,10 @@ const Chat = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [showPicker,  setShowPicker]  = useState(false);
   const [pickerTab,   setPickerTab]   = useState('emoji');
-  const [activeCall,  setActiveCall]  = useState(null);
-  const [incomingCall, setIncomingCall] = useState(null);
   const [hasBooking, setHasBooking] = useState(false);
   const [loadingBooking, setLoadingBooking] = useState(true);
   const [sessionReminder, setSessionReminder] = useState(null);
 
-  const adminSocketIdRef = useRef(null);
   const messagesEndRef   = useRef(null);
   const fileInputRef     = useRef(null);
   const pickerRef        = useRef(null);
@@ -57,54 +52,9 @@ const Chat = () => {
     socket.on('client_init', (data) => setMessages(data.messages));
     socket.on('receive_message', (msg) => setMessages(prev => [...prev, msg]));
 
-    socket.on('admin_socket_id', ({ socketId }) => {
-      console.log('Got admin socket ID:', socketId);
-      adminSocketIdRef.current = socketId;
-    });
-
-    socket.on('incoming_call', ({ callerSocketId, callerName, callType }) => {
-      setIncomingCall({ callerSocketId, callerName, callType });
-    });
-
-    socket.on('session_reminder', ({ message, consultationType, bookingId }) => {
-      // Show a prominent notification banner at the top of the chat
-      setSessionReminder({ message, consultationType, bookingId });
-    });
-
-    // ─────────────────────────────────────────────────────────
-    // KEY FIX: catch call_accepted HERE in Chat.jsx (always mounted)
-    // NOT inside VideoCall (which may not be mounted yet when this fires).
-    // We update activeCall with the real accepterSocketId so VideoCall
-    // receives it as a prop and can send the WebRTC offer immediately.
-    // ─────────────────────────────────────────────────────────
-    socket.on('call_accepted', ({ accepterSocketId, accepterName, callType }) => {
-      console.log('call_accepted — accepterSocketId:', accepterSocketId);
-      setActiveCall(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          remoteSocketId: accepterSocketId,  // now we have the real socket ID
-          remoteUserName: accepterName || prev.remoteUserName,
-        };
-      });
-    });
-
-    socket.on('call_rejected', () => {
-      setActiveCall(null);
-      setIncomingCall(null);
-      alert('Call was declined.');
-    });
-
-    socket.on('call_ended', () => setActiveCall(null));
-
     return () => {
       socket.off('client_init');
       socket.off('receive_message');
-      socket.off('admin_socket_id');
-      socket.off('incoming_call');
-      socket.off('call_accepted');
-      socket.off('call_rejected');
-      socket.off('call_ended');
       socket.off('session_reminder');
     };
   }, [navigate]);
@@ -130,7 +80,7 @@ const Chat = () => {
       if (confirmedBookings.length > 0) {
         const booking = confirmedBookings[0];
         socket.emit('send_message', {
-          text: `⏰ REMINDER: ${user.name} is reminding you of their scheduled consultation.\nBooking: ${booking.consultationType} on ${new Date(booking.date).toLocaleDateString('en-GB')} at ${booking.timeSlot}.\nPlease join when ready.`,
+          text: `â° REMINDER: ${user.name} is reminding you of their scheduled consultation.\nBooking: ${booking.consultationType} on ${new Date(booking.date).toLocaleDateString('en-GB')} at ${booking.timeSlot}.\nPlease join when ready.`,
           to: 'admin',
           isReminder: true
         });
@@ -154,8 +104,8 @@ const Chat = () => {
   const handleJoin = (e) => {
     e.preventDefault();
     if (!user) return;
-    localStorage.setItem('astrology_user_id', user.id);
-    socket.emit('join', { role: 'client', name: user.name, userId: user.id });
+    localStorage.setItem('astrology_user_id', user.id || user._id);
+    socket.emit('join', { role: 'client', name: user.name, userId: user.id || user._id, consultationType: 'chat' });
     setIsJoined(true);
   };
 
@@ -187,139 +137,28 @@ const Chat = () => {
     setShowPicker(false);
   };
 
-  // ── Start outgoing call ──
-  const startCall = (callType) => {
-    const adminId = adminSocketIdRef.current;
-    if (!adminId) { alert('Admin is not online right now.'); return; }
-
-    socket.emit('call_user', {
-      targetSocketId: adminId,
-      callerName: user?.name || 'Client',
-      callType,
-    });
-
-    // Set activeCall with remoteSocketId = null for now.
-    // It will be updated to the real accepterSocketId when call_accepted fires above.
-    setActiveCall({
-      callType,
-      remoteSocketId: null,      // will be filled by call_accepted handler above
-      remoteUserName: 'Astro Dilip Sharma',
-      isIncoming: false,
-      callerSocketId: null,
-    });
-  };
-
-  // ── Accept incoming call ──
-  const acceptCall = () => {
-    if (!incomingCall) return;
-    socket.emit('accept_call', {
-      callerSocketId: incomingCall.callerSocketId,
-      callType: incomingCall.callType,
-    });
-    setActiveCall({
-      callType: incomingCall.callType,
-      remoteSocketId: null,
-      remoteUserName: incomingCall.callerName,
-      isIncoming: true,
-      callerSocketId: incomingCall.callerSocketId,
-    });
-    setIncomingCall(null);
-  };
-
-  const rejectCall = () => {
-    if (incomingCall) socket.emit('reject_call', { callerSocketId: incomingCall.callerSocketId });
-    setIncomingCall(null);
-  };
-
   const formatSize = (b) => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
 
-  // ── Render active call ──
-  // Only render VideoCall once remoteSocketId is known (for caller)
-  // or immediately for callee (they just need callerSocketId)
-  if (activeCall && (activeCall.isIncoming || activeCall.remoteSocketId)) {
-    return (
-      <>
-        <VideoCall
-          socket={socket}
-          callType={activeCall.callType}
-          remoteSocketId={activeCall.remoteSocketId}
-          remoteUserName={activeCall.remoteUserName}
-          isIncoming={activeCall.isIncoming}
-          callerSocketId={activeCall.callerSocketId}
-          onEndCall={() => setActiveCall(null)}
-        />
-        {incomingCall && (
-          <CallNotification
-            callerName={incomingCall.callerName}
-            callType={incomingCall.callType}
-            onAccept={acceptCall}
-            onReject={rejectCall}
-          />
-        )}
-      </>
-    );
-  }
-
-  // Caller waiting for admin to accept
-  if (activeCall && !activeCall.isIncoming && !activeCall.remoteSocketId) {
-    return (
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 9998,
-        background: 'rgba(0,0,0,0.88)',
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', gap: 24,
-      }}>
-        <div style={{
-          width: 90, height: 90, borderRadius: '50%',
-          background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 36, color: '#fff',
-          boxShadow: '0 0 0 16px rgba(124,58,237,0.15),0 0 0 32px rgba(124,58,237,0.07)',
-        }}>
-          {activeCall.callType === 'video' ? '📹' : '🎙️'}
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, margin: '0 0 6px' }}>
-            {activeCall.callType === 'video' ? 'Video calling' : 'Calling'}
-          </p>
-          <h2 style={{ color: '#fff', margin: 0 }}>{activeCall.remoteUserName}</h2>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 6 }}>Waiting for answer…</p>
-        </div>
-        <button
-          onClick={() => { socket.emit('end_call', { targetSocketId: adminSocketIdRef.current }); setActiveCall(null); }}
-          style={{
-            background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
-            border: 'none', borderRadius: '50%',
-            width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', cursor: 'pointer', fontSize: 24,
-          }}
-        >
-          📵
-        </button>
-      </div>
-    );
-  }
-
   if (loadingBooking) {
-    return <div className="chat-container"><div className="glass-card" style={{ padding: '3rem 2rem', textAlign: 'center' }}><p style={{ color: '#fff' }}>Loading...</p></div></div>;
+    return <div className="chat-container"><div className="glass-card" style={{ padding: '3rem 2rem', textAlign: 'center' }}><p style={{ color: 'var(--text-main)' }}>Loading...</p></div></div>;
   }
 
   if (!hasBooking) {
     return (
       <div className="chat-container">
         <div className="glass-card" style={{ padding: '3rem 2rem', textAlign: 'center', maxWidth: '500px', width: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', color: '#F59E0B' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', color: 'var(--primary)' }}>
             <CalendarX size={64} />
           </div>
-          <h2 style={{ color: '#fff', marginBottom: '1rem' }}>Appointment Required</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '1.1rem' }}>
+          <h2 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Appointment Required</h2>
+          <p style={{ color: 'var(--text-main)', marginBottom: '2rem', fontSize: '1.1rem' }}>
             Please book a consultation session before chatting with Astro Dilip Sharma.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <Link to="/booking" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
+            <Link to="/booking" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', padding: '1rem', color: 'var(--text-main)' }}>
               Book a Consultation
             </Link>
-            <Link to="/my-bookings" className="btn-outline" style={{ display: 'flex', justifyContent: 'center', padding: '1rem', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', textDecoration: 'none', borderRadius: '8px' }}>
+            <Link to="/my-bookings" className="btn-outline" style={{ display: 'flex', justifyContent: 'center', padding: '1rem', color: 'var(--text-main)', border: '2px solid var(--text-main)', textDecoration: 'none', borderRadius: '30px' }}>
               View My Bookings
             </Link>
           </div>
@@ -332,16 +171,16 @@ const Chat = () => {
     return (
       <div className="chat-container">
         <div className="join-chat-card glass-card" style={{ padding: '3rem 2rem' }}>
-          <h2 style={{ color: '#fff', marginBottom: '1rem' }}>Ready for Consultation?</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
+          <h2 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Ready for Consultation?</h2>
+          <p style={{ color: 'var(--text-main)', marginBottom: '2rem' }}>
             Click below to connect with Astro Dilip Sharma in real-time.
           </p>
           <form onSubmit={handleJoin} className="join-form">
-            <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '1rem', fontSize: '1.1rem' }}>
+            <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '1rem', fontSize: '1.1rem', color: 'var(--text-main)' }}>
               Start Chat Session
             </button>
           </form>
-          <button onClick={() => navigate('/consultation')} className="btn-outline" style={{ width: '100%', marginTop: '1rem', justifyContent: 'center' }}>
+          <button onClick={() => navigate('/booking')} className="btn-outline" style={{ width: '100%', marginTop: '1rem', justifyContent: 'center', color: 'var(--text-main)' }}>
             Go Back
           </button>
         </div>
@@ -362,30 +201,28 @@ const Chat = () => {
           <Bell color="#F59E0B" size={24} style={{ flexShrink: 0 }} />
           <div>
             <h4 style={{ color: '#F59E0B', margin: '0 0 4px 0' }}>Your session is starting now!</h4>
-            <p style={{ color: '#fff', margin: 0, fontSize: '0.9rem' }}>{sessionReminder.message}</p>
+            <p style={{ color: '#1A1400', margin: 0, fontSize: '0.9rem' }}>{sessionReminder.message}</p>
           </div>
           <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
             {['video', 'audio'].includes(sessionReminder.consultationType) && (
-              <button onClick={() => { startCall(sessionReminder.consultationType); setSessionReminder(null); }} className="btn-primary" style={{ padding: '8px 16px', background: '#F59E0B', color: '#000' }}>
+              <Link to={`/call?type=${sessionReminder.consultationType}`} onClick={() => setSessionReminder(null)} className="btn-primary" style={{ padding: '8px 16px', background: '#F59E0B', color: '#000', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                 {sessionReminder.consultationType === 'video' ? <Video size={16} style={{marginRight: '6px'}} /> : <Phone size={16} style={{marginRight: '6px'}} />}
                 Join Now
-              </button>
+              </Link>
             )}
-            <button onClick={() => setSessionReminder(null)} className="btn-outline" style={{ padding: '8px 16px', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+            <button onClick={() => setSessionReminder(null)} className="btn-outline" style={{ padding: '8px 16px', border: '1px solid rgba(26, 20, 0, 0.1)', color: '#1A1400' }}>
               Dismiss
             </button>
           </div>
         </div>
       )}
 
-      {incomingCall && (
-        <CallNotification callerName={incomingCall.callerName} callType={incomingCall.callType} onAccept={acceptCall} onReject={rejectCall} />
-      )}
+
 
       <div className="chat-interface custom-chat-panel">
         <div className="chat-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Link to="/consultation" className="back-btn"><ArrowLeft size={20} /></Link>
+            <Link to="/booking" className="back-btn"><ArrowLeft size={20} /></Link>
             <div className="header-info">
               <div className="avatar-wrapper">
                 <div className="avatar"><User size={24} /></div>
@@ -393,7 +230,7 @@ const Chat = () => {
               </div>
               <div>
                 <h3>Astro Dilip Sharma</h3>
-                <p className="subtitle">Vedic Astrologer · Typically replies instantly</p>
+                <p className="subtitle">Vedic Astrologer Â· Typically replies instantly</p>
               </div>
             </div>
           </div>
@@ -401,8 +238,6 @@ const Chat = () => {
             <button className="action-btn" title="Remind Admin" onClick={handleRemindAdmin} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '6px 12px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
               <Clock size={16} /> Remind Admin
             </button>
-            <button className="action-btn" title="Voice Call" onClick={() => startCall('audio')}><Phone size={18} /></button>
-            <button className="action-btn" title="Video Call" onClick={() => startCall('video')}><Video size={18} /></button>
           </div>
         </div>
 
@@ -503,3 +338,7 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
+
+

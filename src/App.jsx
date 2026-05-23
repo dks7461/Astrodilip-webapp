@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
-import Consultation from './pages/Consultation';
 import Reports from './pages/Reports';
 import Courses from './pages/Courses';
 import FreeCalculators from './pages/FreeCalculators';
@@ -13,6 +12,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Booking from './pages/Booking';
 import MyBookings from './pages/MyBookings';
+import CallSession from './pages/CallSession';
 
 function App() {
   return (
@@ -22,7 +22,6 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/consultation" element={<Consultation />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/calculators" element={<FreeCalculators />} />
@@ -33,6 +32,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/booking" element={<Booking />} />
             <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/call" element={<CallSession />} />
           </Routes>
         </main>
         <Footer />
@@ -42,3 +42,4 @@ function App() {
 }
 
 export default App;
+

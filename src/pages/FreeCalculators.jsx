@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 const FreeCalculators = () => {
   return (
@@ -12,3 +12,4 @@ const FreeCalculators = () => {
 };
 
 export default FreeCalculators;
+

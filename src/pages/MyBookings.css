@@ -1,7 +1,7 @@
 .my-bookings-page {
   min-height: 100vh;
-  background-color: #0a0a1a;
-  color: white;
+  background-color: transparent;
+  color: var(--text-main);
   padding: 8rem 2rem 4rem;
   position: relative;
   overflow: hidden;
@@ -20,7 +20,7 @@
   align-items: center;
   gap: 12px;
   font-size: 32px;
-  color: #F59E0B;
+  color: var(--text-main);
   margin-bottom: 40px;
 }
 
@@ -28,13 +28,13 @@
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: 2px dashed var(--text-main);
   border-radius: 16px;
 }
 
 .empty-icon {
-  color: rgba(255, 255, 255, 0.2);
+  color: #1A1400;
   margin-bottom: 16px;
 }
 
@@ -44,14 +44,14 @@
 }
 
 .empty-state p {
-  color: rgba(255, 255, 255, 0.5);
+  color: #1A1400;
   margin-bottom: 24px;
 }
 
 .book-now-btn {
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
-  color: white;
-  border: none;
+  background: var(--primary);
+  color: var(--text-main);
+  border: 2px solid var(--text-main);
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: bold;
@@ -61,7 +61,7 @@
 
 .book-now-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+  box-shadow: 4px 4px 0 var(--text-main);
 }
 
 .bookings-grid {
@@ -71,8 +71,8 @@
 }
 
 .booking-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: 2px solid var(--text-main);
   border-radius: 16px;
   padding: 20px;
   transition: all 0.3s ease;
@@ -81,9 +81,10 @@
 }
 
 .booking-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(124, 58, 237, 0.4);
+  background: var(--primary);
+  border-color: var(--text-main);
   transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--text-main);
 }
 
 .booking-card-header {
@@ -92,14 +93,14 @@
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 2px solid var(--text-main);
 }
 
 .booking-type {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #fff;
+  color: var(--text-main);
   font-weight: 500;
   text-transform: capitalize;
 }
@@ -113,23 +114,27 @@
 }
 
 .status-pending {
-  background: rgba(245, 158, 11, 0.2);
-  color: #F59E0B;
+  background: var(--bg-main);
+  color: var(--text-main);
+  border: 2px solid var(--text-main);
 }
 
 .status-confirmed {
-  background: rgba(16, 185, 129, 0.2);
-  color: #10B981;
+  background: var(--primary);
+  color: var(--text-main);
+  border: 2px solid var(--text-main);
 }
 
 .status-completed {
-  background: rgba(124, 58, 237, 0.2);
-  color: #A78BFA;
+  background: var(--text-main);
+  color: var(--primary);
+  border: 2px solid var(--text-main);
 }
 
 .status-cancelled {
-  background: rgba(220, 38, 38, 0.2);
-  color: #F87171;
+  background: transparent;
+  color: var(--text-main);
+  border: 2px solid var(--text-main);
 }
 
 .booking-details {
@@ -144,12 +149,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: #1A1400;
   font-size: 14px;
 }
 
 .detail-icon {
-  color: #F59E0B;
+  color: var(--primary);
 }
 
 .booking-actions {
@@ -166,24 +171,28 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: none;
+  border: 2px solid var(--text-main);
 }
 
 .btn-cancel {
-  background: rgba(220, 38, 38, 0.1);
-  color: #F87171;
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: transparent;
+  color: var(--text-main);
 }
 
 .btn-cancel:hover {
-  background: rgba(220, 38, 38, 0.2);
+  background: var(--text-main);
+  color: var(--primary);
 }
 
 .btn-join {
-  background: linear-gradient(135deg, #10B981, #059669);
-  color: white;
+  background: var(--primary);
+  color: var(--text-main);
 }
 
 .btn-join:hover {
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 4px 4px 0 var(--text-main);
 }
+
+
+
+

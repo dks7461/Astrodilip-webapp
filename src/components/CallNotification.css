@@ -46,7 +46,7 @@
   transform: translateY(0) scale(1);
 }
 
-/* ── Ripple + Avatar ── */
+/* â”€â”€ Ripple + Avatar â”€â”€ */
 .cn-ripple-wrap {
   position: relative;
   width: 100px;
@@ -92,7 +92,7 @@
     0 8px 24px rgba(124, 58, 237, 0.4);
 }
 
-/* ── Info ── */
+/* â”€â”€ Info â”€â”€ */
 .cn-info {
   text-align: center;
   display: flex;
@@ -119,11 +119,11 @@
 
 .cn-sublabel {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
 }
 
-/* ── Actions ── */
+/* â”€â”€ Actions â”€â”€ */
 .cn-actions {
   display: flex;
   align-items: center;
@@ -142,7 +142,7 @@
 .cn-action-label {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .cn-btn {
@@ -203,7 +203,7 @@
   50%       { transform: translateY(-5px); }
 }
 
-/* ── Responsive ── */
+/* â”€â”€ Responsive â”€â”€ */
 @media (max-width: 420px) {
   .cn-backdrop {
     align-items: flex-end;
@@ -216,3 +216,8 @@
     border-radius: 28px 28px 0 0;
   }
 }
+
+
+
+
+

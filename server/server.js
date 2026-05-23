@@ -273,9 +273,9 @@ io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   // User joins with a role: 'client' or 'admin'
-  socket.on('join', async ({ role, name, userId }) => {
+  socket.on('join', async ({ role, name, userId, consultationType }) => {
     socket.join(role);
-    const user = { id: socket.id, role, name: name || 'Anonymous', userId: userId || socket.id };
+    const user = { id: socket.id, role, name: name || 'Anonymous', userId: userId || socket.id, consultationType: consultationType || 'chat' };
     activeUsers.set(socket.id, user);
     console.log(`${role} joined: ${user.name} (${socket.id})`);
 

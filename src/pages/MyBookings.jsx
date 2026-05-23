@@ -57,8 +57,11 @@ const MyBookings = () => {
   };
 
   const handleJoin = (booking) => {
-    // Determine the route to join based on type. For chat, it's /chat. For calls, also /chat where call signaling happens.
-    navigate('/chat');
+    if (booking.consultationType === 'video' || booking.consultationType === 'audio') {
+      navigate(`/call?type=${booking.consultationType}`);
+    } else {
+      navigate('/chat');
+    }
   };
 
   const getStatusClass = (status) => {
@@ -105,8 +108,6 @@ const MyBookings = () => {
 
   return (
     <div className="my-bookings-page">
-      <div className="stars-bg"></div>
-      
       <div className="my-bookings-container">
         <h1 className="page-title">
           <Sparkles className="sparkle-icon" />
@@ -173,3 +174,4 @@ const MyBookings = () => {
 };
 
 export default MyBookings;
+

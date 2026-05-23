@@ -37,14 +37,15 @@ const Navbar = () => {
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-      <div className="container nav-container">
-        <Link to="/" className="nav-logo" onClick={closeMenu}>
+      <div className="nav-container">
+        <Link to="/" className="nav-logo" onClick={closeMenu} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          <img src="/logo.svg" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
           Astro Dilip Sharma
         </Link>
         
         <div className={`nav-links ${isOpen ? 'active' : ''}`}>
           <Link to="/" className={location.pathname === '/' ? 'active-link' : ''} onClick={closeMenu}>Home</Link>
-          <Link to="/consultation" className={location.pathname === '/consultation' ? 'active-link' : ''} onClick={closeMenu}>Consultation</Link>
+          <Link to="/booking" className={location.pathname === '/booking' ? 'active-link' : ''} onClick={closeMenu}>Consultation</Link>
           <Link to="/reports" className={location.pathname === '/reports' ? 'active-link' : ''} onClick={closeMenu}>Reports</Link>
           <Link to="/courses" className={location.pathname === '/courses' ? 'active-link' : ''} onClick={closeMenu}>Courses</Link>
           <Link to="/calculators" className={location.pathname === '/calculators' ? 'active-link' : ''} onClick={closeMenu}>Free Calculators</Link>
@@ -59,10 +60,10 @@ const Navbar = () => {
         <div className="nav-actions">
           {user ? (
             <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
-              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff'}}>
-                <User size={18} color="#F59E0B" /> <span style={{fontSize: '0.9rem'}}>{user.name.split(' ')[0]}</span>
+              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)'}}>
+                <User size={18} color="var(--accent-main)" /> <span style={{fontSize: '0.9rem', fontWeight: 'bold'}}>{user.name.split(' ')[0]}</span>
               </div>
-              <button onClick={handleLogout} style={{background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center'}} title="Logout">
+              <button onClick={handleLogout} style={{background: 'transparent', border: 'none', color: 'var(--text-main)', cursor: 'pointer', display: 'flex', alignItems: 'center'}} title="Logout">
                 <LogOut size={18} />
               </button>
             </div>
@@ -87,3 +88,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

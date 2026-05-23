@@ -135,8 +135,6 @@ const Booking = () => {
 
   return (
     <div className="booking-page">
-      <div className="stars-bg"></div>
-      
       <div className="booking-container">
         <h1 className="booking-title">
           <Sparkles className="sparkle-icon" />
@@ -184,9 +182,9 @@ const Booking = () => {
 
             {/* Section 3: Time Slot */}
             <div className="booking-section">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px', paddingBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--text-main)', marginBottom: '20px', paddingBottom: '10px' }}>
                 <h2 style={{ borderBottom: 'none', margin: 0, padding: 0 }}>3. Select Time Slot</h2>
-                <span style={{ color: '#10B981', fontSize: '0.85rem', fontWeight: 'bold' }}>🕒 Indian Standard Time (IST)</span>
+                <span style={{ color: 'var(--text-main)', fontSize: '0.85rem', fontWeight: 'bold' }}>🕒 Indian Standard Time (IST)</span>
               </div>
               {!selectedDate ? (
                 <p className="hint-text">Please select a date first.</p>
@@ -319,3 +317,5 @@ const Booking = () => {
 };
 
 export default Booking;
+
+

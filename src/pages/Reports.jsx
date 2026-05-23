@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Search, Loader, AlertCircle } from 'lucide-react';
 import './Reports.css';
 
@@ -81,7 +81,7 @@ const Reports = () => {
     <div className="reports-page">
       <div className="container">
         <h1 className="section-title">Generate Basic Kundli</h1>
-        <p className="reports-subtitle">
+        <p className="reports-subtitle" style={{ color: '#1A1400', fontWeight: '500' }}>
           Enter your birth details below to generate your personalized Janam Kundli and planetary positions report powered by Vedic Astro API.
         </p>
 
@@ -89,24 +89,24 @@ const Reports = () => {
           <div className="glass-card form-card">
             <form onSubmit={fetchKundliData} className="kundli-form">
               <div className="form-group">
-                <label>Full Name</label>
-                <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder="e.g. Rahul Sharma" />
+                <label style={{ color: '#1A1400' }}>Full Name</label>
+                <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder="e.g. Rahul Sharma" style={{ background: 'transparent', color: '#1A1400', border: '1px solid #1A1400' }} />
               </div>
               
               <div className="form-row">
                 <div className="form-group">
-                  <label>Date of Birth</label>
-                  <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} required />
+                  <label style={{ color: '#1A1400' }}>Date of Birth</label>
+                  <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} required style={{ background: 'transparent', color: '#1A1400', border: '1px solid #1A1400' }} />
                 </div>
                 <div className="form-group">
-                  <label>Time of Birth</label>
-                  <input type="time" name="tob" value={formData.tob} onChange={handleInputChange} required />
+                  <label style={{ color: '#1A1400' }}>Time of Birth</label>
+                  <input type="time" name="tob" value={formData.tob} onChange={handleInputChange} required style={{ background: 'transparent', color: '#1A1400', border: '1px solid #1A1400' }} />
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Birth City</label>
-                <input type="text" name="location" value={formData.location} onChange={handleInputChange} required placeholder="e.g. New Delhi, India" />
+                <label style={{ color: '#1A1400' }}>Birth City</label>
+                <input type="text" name="location" value={formData.location} onChange={handleInputChange} required placeholder="e.g. New Delhi, India" style={{ background: 'transparent', color: '#1A1400', border: '1px solid #1A1400' }} />
               </div>
 
               <button type="submit" className="btn-primary submit-btn" disabled={loading}>
@@ -128,7 +128,7 @@ const Reports = () => {
               <div className="empty-state">
                 <div className="glow-circle-small"></div>
                 <h3>Your Destiny Awaits</h3>
-                <p>Fill out the form to unlock your cosmic blueprint.</p>
+                <p style={{ color: '#1A1400', fontWeight: '500' }}>Fill out the form to unlock your cosmic blueprint.</p>
               </div>
             )}
 
@@ -189,3 +189,4 @@ const Reports = () => {
 };
 
 export default Reports;
+
