@@ -96,12 +96,8 @@ const Home = () => {
             </div>
             <div className="trust-badges">
               <div className="badge">
-                <Users size={20} className="badge-icon" />
-                <span>1M+ Users</span>
-              </div>
-              <div className="badge">
                 <Star size={20} className="badge-icon" />
-                <span>4.9/5 Rating</span>
+                <span>4.8/5 &nbsp;&nbsp; Rated in Astrotalk</span>
               </div>
               <div className="badge">
                 <Shield size={20} className="badge-icon" />
@@ -124,9 +120,9 @@ const Home = () => {
           </div>
           <div className="new-services-grid">
             {astroServices.map((service, index) => (
-              <Link 
-                to={service.link} 
-                key={service.id} 
+              <Link
+                to={service.link}
+                key={service.id}
                 className="new-service-card fade-in-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -161,9 +157,9 @@ const Home = () => {
           </div>
           <div className="horoscope-grid">
             {horoscopes.map((sign, index) => (
-              <Link 
-                to={`/calculators?sign=${sign.name.toLowerCase()}`} 
-                key={sign.id} 
+              <Link
+                to={`/calculators?sign=${sign.name.toLowerCase()}`}
+                key={sign.id}
                 className="horoscope-card fade-in-up"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
@@ -187,13 +183,13 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Testimonials / Stats */}
       <section className="stats-section">
         <div className="container">
           <div className="stats-grid">
             <div className="stat-item">
-              <h3 className="text-gradient">15+</h3>
+              <h3 className="text-gradient">22+</h3>
               <p>Years Experience</p>
             </div>
             <div className="stat-item">
