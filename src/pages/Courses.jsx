@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Star } from 'lucide-react';
 import './Courses.css';
 
@@ -41,6 +42,95 @@ const courses = [
 ];
 
 const Courses = () => {
+  const navigate = useNavigate();
+
+  const handlePayment = async (course) => {
+    const userStr = localStorage.getItem('astrology_user');
+    if (!userStr) {
+      alert('Please log in to purchase a course.');
+      navigate('/login');
+      return;
+    }
+    const user = JSON.parse(userStr);
+    
+    // Parse the price string (e.g., "11,000" to 11000)
+    const amountStr = course.price.replace(/,/g, '');
+    const amountNum = parseInt(amountStr, 10);
+
+    const bookingData = {
+      userId: user.id || null,
+      userName: user.name || 'User',
+      userEmail: user.email || '',
+      date: new Date().toLocaleDateString('en-GB'),
+      timeSlot: 'N/A',
+      duration: 0,
+      consultationType: `Course: ${course.title}`,
+      amount: amountNum,
+      notes: 'Course Admission',
+      status: 'confirmed'
+    };
+
+    try {
+      const orderRes = await fetch('https://astrodilip-webapp.onrender.com/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: amountNum })
+      });
+      
+      if (!orderRes.ok) {
+        return alert('Failed to initiate payment. Please try again.');
+      }
+      
+      const order = await orderRes.json();
+      
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Astro Dilip Sharma",
+        description: `Admission: ${course.title}`,
+        order_id: order.id,
+        handler: async function (response) {
+          const verifyRes = await fetch('https://astrodilip-webapp.onrender.com/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              bookingData: bookingData
+            })
+          });
+          
+          if (verifyRes.ok) {
+            alert('Payment successful! Course admission confirmed.');
+            navigate('/my-bookings');
+          } else {
+            alert('Payment verification failed. If money was deducted, please contact support.');
+          }
+        },
+        prefill: {
+          name: user.name || '',
+          email: user.email || '',
+          contact: user.phone || ''
+        },
+        theme: {
+          color: "#FF6B00"
+        }
+      };
+
+      const rzp1 = new window.Razorpay(options);
+      rzp1.on('payment.failed', function (response){
+        alert(`Payment Failed: ${response.error.description}`);
+      });
+      rzp1.open();
+
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during payment processing.');
+    }
+  };
+
   return (
     <div className="courses-page">
       <div className="courses-header">
@@ -86,7 +176,7 @@ const Courses = () => {
                 </div>
                 
                 <div className="course-actions">
-                  <button className="btn-pay">Admission/Pay</button>
+                  <button className="btn-pay" onClick={() => handlePayment(course)}>Admission/Pay</button>
                 </div>
               </div>
             </div>
