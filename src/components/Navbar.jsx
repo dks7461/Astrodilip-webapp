@@ -46,8 +46,8 @@ const Navbar = () => {
         <div className={`nav-links ${isOpen ? 'active' : ''}`}>
           <Link to="/" className={location.pathname === '/' ? 'active-link' : ''} onClick={closeMenu}>Home</Link>
           <Link to="/booking" className={location.pathname === '/booking' ? 'active-link' : ''} onClick={closeMenu}>Consultation</Link>
-          <Link to="/reports" className={location.pathname === '/reports' ? 'active-link' : ''} onClick={closeMenu}>Reports</Link>
           <Link to="/courses" className={location.pathname === '/courses' ? 'active-link' : ''} onClick={closeMenu}>Courses</Link>
+          <Link to="/reports" className={location.pathname === '/reports' ? 'active-link' : ''} onClick={closeMenu}>Reports</Link>
           <Link to="/calculators" className={location.pathname === '/calculators' ? 'active-link' : ''} onClick={closeMenu}>Free Calculators</Link>
           <Link to="/about" className={location.pathname === '/about' ? 'active-link' : ''} onClick={closeMenu}>About Us</Link>
           {user && (
