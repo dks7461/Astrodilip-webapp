@@ -80,7 +80,7 @@ const Home = () => {
       excerpt: "Astro Dilip Sharma explains how the major transits of Saturn and Jupiter will impact your sun sign this year...",
       date: "May 15, 2026",
       author: "Astro Dilip Sharma",
-      image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=600&auto=format&fit=crop"
+      image: "/courses/new-planetary transits.png"
     },
     {
       id: 2,
@@ -88,7 +88,7 @@ const Home = () => {
       excerpt: "After struggling for years, applying simple Vastu remedies suggested by Astro Dilip transformed my workspace energy...",
       date: "May 10, 2026",
       author: "Priya M. (Client Experience)",
-      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop"
+      image: "/courses/new-vastu.png"
     },
     {
       id: 3,
@@ -96,7 +96,7 @@ const Home = () => {
       excerpt: "Why Lal Kitab is considered one of the most practical and effective branches of astrology in the modern era.",
       date: "May 2, 2026",
       author: "Astro Dilip Sharma",
-      image: "https://images.unsplash.com/photo-1515594833215-d41935e4fc76?q=80&w=600&auto=format&fit=crop"
+      image: "/courses/new-lalkitab.jpg"
     }
   ];
 
@@ -239,8 +239,8 @@ const Home = () => {
       <section className="blogs-section">
         <ScrollReveal className="container section-big-card">
           <div className="blogs-header">
-            <h2 className="blogs-title">Cosmic Insights & Experiences</h2>
-            <p className="blogs-subtitle">Read predictions by Astro Dilip Sharma and real experiences from our clients.</p>
+            <h2 className="blogs-title">Read Blogs from our Clients</h2>
+            <p className="blogs-subtitle">Discover real experiences and life-changing stories from the people we have guided.</p>
           </div>
           <div className="blogs-grid">
             {blogsData.map((blog, index) => (
