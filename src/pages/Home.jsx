@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ArrowRight, Star, Shield, Users, BookOpen, Sun } from 'lucide-react';
 import './Home.css';
 import heroImg from '../assets/hero-image.png';
@@ -117,6 +118,11 @@ const Home = () => {
 
   return (
     <div className="home-page">
+      <Helmet>
+        <title>Astro Dilip Sharma - Top Vedic Astrologer | Kundli & Predictions</title>
+        <meta name="description" content="Consult India's premier astrologer, Dilip Sharma, with 22+ years of experience. Get expert Vedic astrology, numerology, and Vastu consultations." />
+        <link rel="canonical" href="https://astrodilipsharma.com/" />
+      </Helmet>
       {/* Hero Section */}
       <section className="hero-section">
         <div className="container hero-container">

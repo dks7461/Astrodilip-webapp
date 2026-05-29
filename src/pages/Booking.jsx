@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { MessageSquare, Phone, Video, Calendar, Clock, MapPin, Sparkles } from 'lucide-react';
 import './Booking.css';
 
@@ -181,6 +182,11 @@ const Booking = () => {
 
   return (
     <div className="booking-page">
+      <Helmet>
+        <title>Book Astrologer Consultation | Astro Dilip Sharma</title>
+        <meta name="description" content="Book a personalized chat, audio, or video consultation with expert Vedic astrologer Dilip Sharma. Get accurate predictions and remedies." />
+        <link rel="canonical" href="https://astrodilipsharma.com/booking" />
+      </Helmet>
       <div className="booking-container">
         <h1 className="booking-title">
           <Sparkles className="sparkle-icon" />

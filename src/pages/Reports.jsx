@@ -1,4 +1,5 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Search, Loader, AlertCircle } from 'lucide-react';
 import './Reports.css';
 
@@ -79,6 +80,11 @@ const Reports = () => {
 
   return (
     <div className="reports-page">
+      <Helmet>
+        <title>Generate Free Janam Kundli | Astrological Reports | Astro Dilip Sharma</title>
+        <meta name="description" content="Generate your personalized Janam Kundli and planetary positions report based on your birth details. Unlock your cosmic blueprint with Astro Dilip Sharma." />
+        <link rel="canonical" href="https://astrodilipsharma.com/reports" />
+      </Helmet>
       <div className="container">
         <h1 className="section-title">Generate Basic Kundli</h1>
         <p className="reports-subtitle" style={{ color: '#1A1400', fontWeight: '500' }}>

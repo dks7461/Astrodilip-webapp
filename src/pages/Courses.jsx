@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Star } from 'lucide-react';
 import './Courses.css';
 
@@ -133,6 +134,11 @@ const Courses = () => {
 
   return (
     <div className="courses-page">
+      <Helmet>
+        <title>Learn Astrology & Vastu | Vedic Courses by Astro Dilip Sharma</title>
+        <meta name="description" content="Enroll in expert astrology courses, complete Vastu, Numerology, and Lal Kitab remedies training with Astro Dilip Sharma. Daily batches available." />
+        <link rel="canonical" href="https://astrodilipsharma.com/courses" />
+      </Helmet>
       <div className="courses-header">
         <h1 className="section-title">Diploma Of Expert In Future Consultation Courses</h1>
       </div>
