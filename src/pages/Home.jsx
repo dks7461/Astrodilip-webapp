@@ -186,7 +186,7 @@ const Home = () => {
           </div>
           <div className="hero-image-wrapper">
             <div className="glow-circle"></div>
-            <img src={heroImg} alt="Astro Dilip Sharma" className="hero-image" />
+            <img src="/admin-photo.png" alt="Astro Dilip Sharma" className="hero-image" />
           </div>
         </div>
       </section>
@@ -209,6 +209,36 @@ const Home = () => {
                 <h3 className="new-service-title">{service.title}</h3>
               </Link>
             ))}
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* About Us Section */}
+      <section className="home-about-section">
+        <ScrollReveal className="container home-about-container">
+          <div className="home-about-image-wrapper">
+            <img src={heroImg} alt="Astro Dilip Sharma" className="home-about-image" />
+          </div>
+          <div className="home-about-content">
+            <h2 className="home-about-title">About Astrologer Dilip Sharma</h2>
+            <p>
+              I have been practicing Astrology and Vastu for over 22 years in the field of Vedic Astrology. 
+              I gained my knowledge from some of the best professors of Rastriya Sanskrit Sansthan. 
+              I started my astrological career in 2008 and later learned the greatest provenance of astrology 
+              under the guidance of great astrologers of Delhi, incorporating Vastu Shastra in 2011 and 
+              Numerology in 2013.
+            </p>
+            <p>
+              I give the most preference to Karmic Remedies which give fast & accurate results. First, 
+              I check the chart & ask some questions before giving remedies. I check all prospects by Chart, 
+              Vastu and Numerology related issues, then only give the best and easy solutions to help you achieve 
+              balance, peace, and success in life.
+            </p>
+            <div className="home-about-actions">
+              <Link to="/about" className="btn-primary">
+                Read Full Story
+              </Link>
+            </div>
           </div>
         </ScrollReveal>
       </section>
