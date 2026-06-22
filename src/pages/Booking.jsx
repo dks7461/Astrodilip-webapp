@@ -1,184 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MessageSquare, Phone, Video, Calendar, Clock, MapPin, Sparkles } from 'lucide-react';
+import { MessageSquare, Phone, Video, Sparkles } from 'lucide-react';
+import Cal, { getCalApi } from '@calcom/embed-react';
+import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import './Booking.css';
+
+const CAL_ORIGIN = import.meta.env.VITE_CALCOM_URL;
+const CAL_USERNAME = import.meta.env.VITE_CALCOM_USERNAME || 'astrodilip';
+
+// Fallback icons keyed by consultation type id.
+const TYPE_ICONS = { chat: MessageSquare, audio: Phone, video: Video };
 
 const Booking = () => {
   const navigate = useNavigate();
+  const { user, profile, loading: authLoading } = useAuth();
+
+  const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [availableSlots, setAvailableSlots] = useState([]);
-  const [loadingSlots, setLoadingSlots] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    dob: '',
-    tob: '',
-    dontKnowTime: false,
-    pob: '',
-    question: ''
-  });
 
-  const consultationTypes = [
-    { id: 'chat', title: 'Chat Consultation', price: 299, duration: '30 mins', icon: MessageSquare },
-    { id: 'audio', title: 'Voice Call', price: 499, duration: '30 mins', icon: Phone },
-    { id: 'video', title: 'Video Call', price: 799, duration: '30 mins', icon: Video }
-  ];
-
-  // Load user data if logged in
+  // Require login before booking.
   useEffect(() => {
-    const userStr = localStorage.getItem('astrology_user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      setFormData(prev => ({ ...prev, name: user.name || '', email: user.email || '', phone: user.phone || '' }));
-    } else {
-      // User is not logged in, silently redirect
+    if (!authLoading && !user) {
+      localStorage.setItem('redirect_after_login', '/booking');
       navigate('/login');
     }
-  }, [navigate]);
+  }, [authLoading, user, navigate]);
 
-  // Generate next 14 dates
-  const generateDates = () => {
-    const dates = [];
-    let d = new Date();
-    for (let i = 0; i < 14; i++) {
-      dates.push({
-        fullDate: d.toISOString().split('T')[0],
-        dayName: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        dateNum: d.getDate()
-      });
-      d.setDate(d.getDate() + 1);
-    }
-    return dates;
-  };
-  const dates = generateDates();
-
+  // Load consultation types (config) from Supabase.
   useEffect(() => {
-    if (selectedDate) {
-      fetchSlots(selectedDate);
-    }
-  }, [selectedDate]);
-
-  const fetchSlots = async (date) => {
-    setLoadingSlots(true);
-    setSelectedTime(null);
-    try {
-      const res = await fetch(`https://astrodilip-webapp.onrender.com/api/slots?date=${date}`);
-      const data = await res.json();
-      setAvailableSlots(data.slots || []);
-    } catch (err) {
-      console.error('Failed to fetch slots', err);
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const getSelectedTypeData = () => {
-    return consultationTypes.find(t => t.id === selectedType) || {};
-  };
-
-  const handleConfirm = async () => {
-    if (!selectedType || !selectedDate || !selectedTime) {
-      return alert('Please select a consultation type, date, and time slot.');
-    }
-    if (!formData.name || !formData.email || !formData.phone || !formData.dob || !formData.pob || !formData.question) {
-      return alert('Please fill in all required birth details.');
-    }
-    if (!formData.dontKnowTime && !formData.tob) {
-      return alert('Please provide your time of birth or check "Don\'t know exact time".');
-    }
-
-    const userStr = localStorage.getItem('astrology_user');
-    const user = userStr ? JSON.parse(userStr) : {};
-
-    const bookingData = {
-      userId: user.id || null, // Assuming localstorage has user.id
-      userName: formData.name,
-      userEmail: formData.email,
-      date: selectedDate,
-      timeSlot: selectedTime,
-      duration: 30,
-      consultationType: selectedType,
-      amount: getSelectedTypeData().price,
-      notes: `DOB: ${formData.dob}, TOB: ${formData.dontKnowTime ? 'Unknown' : formData.tob}, POB: ${formData.pob}. Q: ${formData.question}`,
-      status: 'pending'
-    };
-
-    try {
-      // 1. Create Order
-      const orderRes = await fetch('https://astrodilip-webapp.onrender.com/api/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: bookingData.amount })
-      });
-      
-      if (!orderRes.ok) {
-        return alert('Failed to initiate payment. Please try again.');
+    const load = async () => {
+      const { data } = await supabase
+        .from('consultation_types')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order');
+      if (data) {
+        setTypes(data);
+        if (data.length) setSelectedType(data[0]);
       }
-      
-      const order = await orderRes.json();
-      
-      // 2. Open Razorpay Checkout
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: "Astro Dilip Sharma",
-        description: `${bookingData.consultationType} Consultation`,
-        order_id: order.id,
-        handler: async function (response) {
-          // 3. Verify Payment
-          const verifyRes = await fetch('https://astrodilip-webapp.onrender.com/api/verify-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              bookingData: bookingData
-            })
-          });
-          
-          if (verifyRes.ok) {
-            alert('Payment successful & Booking confirmed!');
-            navigate('/my-bookings');
-          } else {
-            alert('Payment verification failed. If money was deducted, please contact support.');
-          }
-        },
-        prefill: {
-          name: bookingData.userName,
-          email: bookingData.userEmail,
-          contact: formData.phone
-        },
-        theme: {
-          color: "#FF6B00"
-        }
-      };
+    };
+    load();
+  }, []);
 
-      const rzp1 = new window.Razorpay(options);
-      rzp1.on('payment.failed', function (response){
-        alert(`Payment Failed: ${response.error.description}`);
-      });
-      rzp1.open();
+  // Theme the Cal.com embed to match the site (orange brand, light theme).
+  useEffect(() => {
+    (async () => {
+      try {
+        const cal = await getCalApi(CAL_ORIGIN ? { origin: CAL_ORIGIN } : undefined);
+        cal('ui', {
+          theme: 'light',
+          cssVarsPerTheme: { light: { 'cal-brand': '#FF6B00' } },
+          hideEventTypeDetails: false,
+          layout: 'month_view',
+        });
+      } catch (err) {
+        console.error('Cal.com embed init failed', err);
+      }
+    })();
+  }, [selectedType]);
 
-    } catch (err) {
-      console.error(err);
-      alert('An error occurred while booking.');
-    }
-  };
+  const displayName = profile?.name || user?.user_metadata?.name || '';
+  const email = profile?.email || user?.email || '';
+  const calLink = selectedType ? `${CAL_USERNAME}/${selectedType.cal_event_slug || selectedType.id}` : null;
 
   return (
     <div className="booking-page">
@@ -193,175 +78,59 @@ const Booking = () => {
           Book a Consultation
         </h1>
 
-        <div className="booking-layout">
-          <div className="booking-form-area">
-            
-            {/* Section 1: Type */}
-            <div className="booking-section">
-              <h2>1. Select Consultation Type</h2>
-              <div className="type-cards">
-                {consultationTypes.map(type => (
-                  <div 
-                    key={type.id} 
-                    className={`type-card ${selectedType === type.id ? 'selected' : ''}`}
-                    onClick={() => setSelectedType(type.id)}
+        <div className="booking-form-area">
+          {/* Section 1: Type */}
+          <div className="booking-section">
+            <h2>1. Select Consultation Type</h2>
+            <div className="type-cards">
+              {types.map((type) => {
+                const Icon = TYPE_ICONS[type.id] || MessageSquare;
+                return (
+                  <div
+                    key={type.id}
+                    className={`type-card ${selectedType?.id === type.id ? 'selected' : ''}`}
+                    onClick={() => setSelectedType(type)}
                   >
-                    <type.icon size={32} className="type-icon" />
+                    <Icon size={32} className="type-icon" />
                     <h3>{type.title}</h3>
-                    <p className="price">₹{type.price}</p>
-                    <p className="duration">{type.duration}</p>
+                    {Number(type.price) > 0 && <p className="price">₹{type.price}</p>}
+                    <p className="duration">{type.duration} mins</p>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 2: Date */}
-            <div className="booking-section">
-              <h2>2. Select Date</h2>
-              <div className="date-picker">
-                {dates.map((d, i) => (
-                  <div 
-                    key={i}
-                    className={`date-card ${selectedDate === d.fullDate ? 'selected' : ''}`}
-                    onClick={() => setSelectedDate(d.fullDate)}
-                  >
-                    <span className="day-name">{d.dayName}</span>
-                    <span className="date-num">{d.dateNum}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 3: Time Slot */}
-            <div className="booking-section">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--text-main)', marginBottom: '20px', paddingBottom: '10px' }}>
-                <h2 style={{ borderBottom: 'none', margin: 0, padding: 0 }}>3. Select Time Slot</h2>
-                <span style={{ color: 'var(--text-main)', fontSize: '0.85rem', fontWeight: 'bold' }}>🕒 Indian Standard Time (IST)</span>
-              </div>
-              {!selectedDate ? (
-                <p className="hint-text">Please select a date first.</p>
-              ) : loadingSlots ? (
-                <p className="hint-text">Loading available slots...</p>
-              ) : (
-                <div className="time-slots">
-                  {availableSlots.map((slot, i) => (
-                    <button
-                      key={i}
-                      disabled={!slot.available}
-                      className={`time-slot ${!slot.available ? 'booked' : ''} ${selectedTime === slot.time ? 'selected' : ''}`}
-                      onClick={() => setSelectedTime(slot.time)}
-                    >
-                      {slot.time}
-                      {!slot.available && <span className="booked-label">Booked</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Section 4: Details */}
-            <div className="booking-section">
-              <h2>4. Birth Details & Question</h2>
-              <div className="details-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Full Name</label>
-                    <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
-                  </div>
-                  <div className="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
-                  </div>
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required />
-                  </div>
-                  <div className="form-group">
-                    <label>Date of Birth</label>
-                    <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} required />
-                  </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group time-group">
-                    <label>Time of Birth</label>
-                    <input 
-                      type="time" 
-                      name="tob" 
-                      value={formData.tob} 
-                      onChange={handleInputChange} 
-                      disabled={formData.dontKnowTime}
-                      required={!formData.dontKnowTime}
-                    />
-                    <label className="checkbox-label">
-                      <input type="checkbox" name="dontKnowTime" checked={formData.dontKnowTime} onChange={handleInputChange} />
-                      Don't know exact time
-                    </label>
-                  </div>
-                  <div className="form-group">
-                    <label>Place of Birth (City, State)</label>
-                    <input type="text" name="pob" value={formData.pob} onChange={handleInputChange} required />
-                  </div>
-                </div>
-
-                <div className="form-group full-width">
-                  <label>Your Question / What to discuss</label>
-                  <textarea 
-                    name="question" 
-                    value={formData.question} 
-                    onChange={handleInputChange} 
-                    maxLength={500} 
-                    rows={4}
-                    required
-                    placeholder="Briefly describe what you'd like to ask..."
-                  />
-                  <span className="char-count">{formData.question.length}/500</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Section 5: Summary */}
-          <div className="booking-summary-wrapper">
-            <div className="booking-summary-card">
-              <h3>Booking Summary</h3>
-              
-              <div className="summary-details">
-                <div className="summary-item">
-                  <span className="label">Type</span>
-                  <span className="value">{getSelectedTypeData().title || 'Not selected'}</span>
-                </div>
-                <div className="summary-item">
-                  <span className="label">Date</span>
-                  <span className="value">{selectedDate ? new Date(selectedDate).toLocaleDateString('en-GB') : 'Not selected'}</span>
-                </div>
-                <div className="summary-item">
-                  <span className="label">Time</span>
-                  <span className="value">{selectedTime || 'Not selected'}</span>
-                </div>
-                <div className="summary-item">
-                  <span className="label">Duration</span>
-                  <span className="value">30 minutes</span>
-                </div>
-                
-                <div className="summary-divider"></div>
-                
-                <div className="summary-total">
-                  <span>Total Amount</span>
-                  <span className="total-price">₹{getSelectedTypeData().price || 0}</span>
-                </div>
-              </div>
-
-              <button className="confirm-btn" onClick={handleConfirm}>
-                Confirm Booking
-              </button>
+                );
+              })}
             </div>
           </div>
 
+          {/* Section 2: Schedule via Cal.com */}
+          <div className="booking-section">
+            <h2>2. Pick a Date &amp; Time</h2>
+            {!CAL_ORIGIN ? (
+              <p className="hint-text">
+                Booking is being configured. Please check back shortly.
+              </p>
+            ) : !selectedType ? (
+              <p className="hint-text">Select a consultation type to see availability.</p>
+            ) : (
+              <div className="cal-embed-wrapper" style={{ minHeight: 600 }}>
+                <Cal
+                  key={selectedType.id}
+                  calLink={calLink}
+                  calOrigin={CAL_ORIGIN}
+                  style={{ width: '100%', height: '100%', overflow: 'scroll' }}
+                  config={{
+                    theme: 'light',
+                    layout: 'month_view',
+                    name: displayName,
+                    email,
+                  }}
+                />
+              </div>
+            )}
+            <p className="hint-text" style={{ marginTop: '1rem' }}>
+              You'll receive a confirmation email with the meeting details. Audio and video
+              consultations include a Google Meet link; chat sessions happen right here on the website.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -369,5 +138,3 @@ const Booking = () => {
 };
 
 export default Booking;
-
-

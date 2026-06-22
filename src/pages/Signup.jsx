@@ -1,43 +1,39 @@
 ﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User as UserIcon } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Phone } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 import './Auth.css';
 
 const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
+    setInfo('');
     setLoading(true);
 
     try {
-      const response = await fetch('https://astrodilip-webapp.onrender.com/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name, phone: phone.trim() } },
       });
+      if (signUpError) throw new Error(signUpError.message);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Signup failed');
+      // If email confirmation is enabled, there is no active session yet.
+      if (data.session) {
+        navigate('/booking');
+      } else {
+        setInfo('Account created! Please check your email to confirm, then log in.');
       }
-
-      // Automatically log them in by saving user data
-      const userToSave = {
-        id: data.user.id || data.user._id,
-        name: data.user.name,
-        email: data.user.email
-      };
-      localStorage.setItem('astrology_user', JSON.stringify(userToSave));
-      localStorage.setItem('astrology_user_id', userToSave.id);
-      navigate('/booking'); // Redirect to booking
     } catch (err) {
       setError(err.message);
     } finally {
@@ -52,7 +48,8 @@ const Signup = () => {
         <p className="auth-subtitle">Join Astro Dilip Sharma for personalized consultations.</p>
         
         {error && <div className="auth-error">{error}</div>}
-        
+        {info && <div className="auth-error" style={{ background: 'rgba(16,185,129,0.12)', color: '#0a7d52' }}>{info}</div>}
+
         <form onSubmit={handleSignup} className="auth-form">
           <div className="input-group">
             <UserIcon size={20} className="input-icon" />
@@ -66,11 +63,21 @@ const Signup = () => {
           </div>
           <div className="input-group">
             <Mail size={20} className="input-icon" />
-            <input 
-              type="email" 
-              placeholder="Email Address" 
+            <input
+              type="email"
+              placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="input-group">
+            <Phone size={20} className="input-icon" />
+            <input
+              type="tel"
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               required
             />
           </div>

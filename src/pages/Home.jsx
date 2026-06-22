@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, Star, Shield, Users, BookOpen, Sun } from 'lucide-react';
+import { ArrowRight, Star, Shield } from 'lucide-react';
 import './Home.css';
 import heroImg from '../assets/hero-image.png';
 import PanchangWidget from '../components/PanchangWidget';
+import { supabase } from '../lib/supabaseClient';
 
 const ScrollReveal = ({ children, className = '' }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -101,16 +102,46 @@ const Home = () => {
     }
   ]);
 
+  const [homeStats, setHomeStats] = useState([
+    { value: '22+', label: 'Years Experience' },
+    { value: '50k+', label: 'Happy Clients' },
+    { value: '100+', label: 'Countries Served' },
+    { value: '24/7', label: 'Support' },
+  ]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const { data } = await supabase.from('site_content').select('value').eq('key', 'home_stats').single();
+      if (data?.value?.length) setHomeStats(data.value);
+    };
+    fetchStats();
+  }, []);
+
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await fetch('https://astrodilip-webapp.onrender.com/api/blogs');
-        const data = await res.json();
+        const { data, error } = await supabase
+          .from('blogs')
+          .select('*')
+          .eq('status', 'published')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
         if (data && data.length > 0) {
-          setBlogsData(data);
+          // Map DB columns to the shape this component renders.
+          setBlogsData(
+            data.map((b) => ({
+              _id: b.id,
+              title: b.title,
+              excerpt: b.excerpt,
+              date: b.display_date,
+              author: b.author,
+              image: b.image,
+              status: b.status,
+            }))
+          );
         }
       } catch (err) {
-        console.error("Failed to fetch blogs", err);
+        console.error('Failed to fetch blogs', err);
       }
     };
     fetchBlogs();
@@ -236,22 +267,12 @@ const Home = () => {
       <section className="stats-section">
         <div className="container">
           <div className="stats-grid">
-            <div className="stat-item">
-              <h3 className="text-gradient">22+</h3>
-              <p>Years Experience</p>
-            </div>
-            <div className="stat-item">
-              <h3 className="text-gradient">50k+</h3>
-              <p>Happy Clients</p>
-            </div>
-            <div className="stat-item">
-              <h3 className="text-gradient">100+</h3>
-              <p>Countries Served</p>
-            </div>
-            <div className="stat-item">
-              <h3 className="text-gradient">24/7</h3>
-              <p>Support</p>
-            </div>
+            {homeStats.map((stat, i) => (
+              <div className="stat-item" key={i}>
+                <h3 className="text-gradient">{stat.value}</h3>
+                <p>{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

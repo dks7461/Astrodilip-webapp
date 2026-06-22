@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { io } from 'socket.io-client';
-import { Send, ArrowLeft, User, Phone, Video, Paperclip, Smile, CheckCheck, X, FileText, CalendarX, Clock, Bell } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Send, ArrowLeft, User, Paperclip, Smile, CheckCheck, X, FileText, CalendarX, Clock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import './Chat.css';
-
-const socket = io('https://astrodilip-webapp.onrender.com');
 
 const STICKERS = [
   'https://cdn-icons-png.flaticon.com/128/3306/3306619.png',
@@ -12,86 +11,117 @@ const STICKERS = [
   'https://cdn-icons-png.flaticon.com/128/3306/3306560.png',
   'https://cdn-icons-png.flaticon.com/128/3306/3306528.png',
 ];
-const EMOJIS = ['ðŸ˜Š', 'ðŸ˜‚', 'ðŸ¥º', 'ðŸ™', 'â¤ï¸', 'ðŸ‘', 'âœ¨', 'ðŸ”¥', 'ðŸ™Œ', 'ðŸ’¯', 'ðŸ”®', 'ðŸ•‰ï¸'];
+const EMOJIS = ['😊', '😂', '🥺', '🙏', '❤️', '👍', '✨', '🔥', '🙌', '💯', '🔮', '🕉️'];
+
+const BUCKET = 'chat-files';
 
 const Chat = () => {
   const navigate = useNavigate();
-  const [messages,    setMessages]    = useState([]);
-  const [inputMsg,    setInputMsg]    = useState('');
-  const [user,        setUser]        = useState(null);
-  const [isJoined,    setIsJoined]    = useState(false);
+  const { user, profile, loading: authLoading } = useAuth();
+
+  const [messages, setMessages] = useState([]);
+  const [inputMsg, setInputMsg] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
-  const [showPicker,  setShowPicker]  = useState(false);
-  const [pickerTab,   setPickerTab]   = useState('emoji');
+  const [showPicker, setShowPicker] = useState(false);
+  const [pickerTab, setPickerTab] = useState('emoji');
   const [hasBooking, setHasBooking] = useState(false);
   const [loadingBooking, setLoadingBooking] = useState(true);
-  const [sessionReminder, setSessionReminder] = useState(null);
+  const [fileUrls, setFileUrls] = useState({}); // message id -> signed/display url
 
-  const messagesEndRef   = useRef(null);
-  const fileInputRef     = useRef(null);
-  const pickerRef        = useRef(null);
+  const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const pickerRef = useRef(null);
 
+  const userId = user?.id;
+  const userName = profile?.name || user?.user_metadata?.name || user?.email || 'Client';
+
+  // Resolve a display URL for a message's attachment (signed for private files).
+  const resolveFileUrl = useCallback(async (msg) => {
+    if (!msg.file_path) return;
+    if (msg.file_type === 'sticker') {
+      setFileUrls((prev) => ({ ...prev, [msg.id]: msg.file_path }));
+      return;
+    }
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(msg.file_path, 3600);
+    if (data?.signedUrl) {
+      setFileUrls((prev) => ({ ...prev, [msg.id]: data.signedUrl }));
+    }
+  }, []);
+
+  // Auth gate + booking gate + realtime subscription + presence.
   useEffect(() => {
-    const saved = localStorage.getItem('astrology_user');
-    if (!saved) { navigate('/login'); return; }
-    const parsedUser = JSON.parse(saved);
-    setUser(parsedUser);
+    if (authLoading) return;
+    if (!user) {
+      navigate('/login');
+      return;
+    }
 
-    fetch(`https://astrodilip-webapp.onrender.com/api/bookings/user/${parsedUser.id || parsedUser._id}`)
-      .then(res => res.json())
-      .then(data => {
-        const hasConfirmed = data.some(b => b.status === 'confirmed');
-        setHasBooking(hasConfirmed);
-        setLoadingBooking(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoadingBooking(false);
-      });
+    let active = true;
 
-    socket.on('client_init', (data) => setMessages(data.messages));
-    socket.on('receive_message', (msg) => setMessages(prev => [...prev, msg]));
+    const init = async () => {
+      // Chat unlocks for clients who have a confirmed chat booking.
+      const { data: bookingRows } = await supabase
+        .from('bookings')
+        .select('id,event_type,status')
+        .eq('event_type', 'chat');
+      const unlocked = (bookingRows || []).some(
+        (b) => b.status === 'confirmed' || b.status === 'pending'
+      );
+      if (!active) return;
+      setHasBooking(unlocked);
+      setLoadingBooking(false);
+      if (!unlocked) return;
+
+      // Load history for this client's conversation.
+      const { data: history } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation', userId)
+        .order('created_at', { ascending: true });
+      if (!active) return;
+      setMessages(history || []);
+      (history || []).forEach(resolveFileUrl);
+    };
+    init();
+
+    // Realtime: new messages in this conversation.
+    const msgChannel = supabase
+      .channel(`msgs:${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation=eq.${userId}`,
+        },
+        ({ new: row }) => {
+          setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, row]));
+          resolveFileUrl(row);
+        }
+      )
+      .subscribe();
+
+    // Presence: let the admin see this client online.
+    const presence = supabase.channel('presence:consultations', {
+      config: { presence: { key: userId } },
+    });
+    presence.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await presence.track({ userId, name: userName, consultationType: 'chat' });
+      }
+    });
 
     return () => {
-      socket.off('client_init');
-      socket.off('receive_message');
-      socket.off('session_reminder');
+      active = false;
+      supabase.removeChannel(msgChannel);
+      supabase.removeChannel(presence);
     };
-  }, [navigate]);
+  }, [authLoading, user, userId, userName, navigate, resolveFileUrl]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  useEffect(() => {
-    if (sessionReminder) {
-      const timer = setTimeout(() => {
-        setSessionReminder(null);
-      }, 60000);
-      return () => clearTimeout(timer);
-    }
-  }, [sessionReminder]);
-
-  const handleRemindAdmin = async () => {
-    try {
-      const res = await fetch(`https://astrodilip-webapp.onrender.com/api/bookings/user/${user.id || user._id}`);
-      const data = await res.json();
-      const confirmedBookings = data.filter(b => b.status === 'confirmed');
-      if (confirmedBookings.length > 0) {
-        const booking = confirmedBookings[0];
-        socket.emit('send_message', {
-          text: `â° REMINDER: ${user.name} is reminding you of their scheduled consultation.\nBooking: ${booking.consultationType} on ${new Date(booking.date).toLocaleDateString('en-GB')} at ${booking.timeSlot}.\nPlease join when ready.`,
-          to: 'admin',
-          isReminder: true
-        });
-        alert('Reminder sent to Astro Dilip Sharma!');
-      } else {
-        alert("You don't have any confirmed bookings yet.");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   useEffect(() => {
     const handler = (e) => {
@@ -101,12 +131,23 @@ const Chat = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const handleJoin = (e) => {
-    e.preventDefault();
-    if (!user) return;
-    localStorage.setItem('astrology_user_id', user.id || user._id);
-    socket.emit('join', { role: 'client', name: user.name, userId: user.id || user._id, consultationType: 'chat' });
-    setIsJoined(true);
+  const insertMessage = async (fields) => {
+    const { error } = await supabase.from('messages').insert({
+      conversation: userId,
+      sender_id: userId,
+      sender_name: userName,
+      sender_role: 'client',
+      ...fields,
+    });
+    if (error) console.error('send failed', error);
+  };
+
+  const handleRemindAdmin = async () => {
+    await insertMessage({
+      text: `⏰ REMINDER: ${userName} is reminding you of their scheduled consultation. Please join when ready.`,
+      is_reminder: true,
+    });
+    alert('Reminder sent to Astro Dilip Sharma!');
   };
 
   const handleFileSelect = (e) => {
@@ -119,28 +160,44 @@ const Chat = () => {
     if (e) e.preventDefault();
     if (!inputMsg.trim() && !selectedFile) return;
 
-    let fileData = null;
+    let fileFields = {};
     if (selectedFile) {
-      fileData = { name: selectedFile.name, size: selectedFile.size, type: selectedFile.type };
-      const buffer = await selectedFile.arrayBuffer();
-      const base64 = btoa(new Uint8Array(buffer).reduce((d, b) => d + String.fromCharCode(b), ''));
-      fileData.dataUrl = `data:${selectedFile.type};base64,${base64}`;
+      const path = `${userId}/${crypto.randomUUID()}-${selectedFile.name}`;
+      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, selectedFile);
+      if (upErr) {
+        console.error('upload failed', upErr);
+        alert('File upload failed.');
+        return;
+      }
+      fileFields = {
+        file_path: path,
+        file_name: selectedFile.name,
+        file_size: selectedFile.size,
+        file_type: selectedFile.type,
+      };
     }
 
-    socket.emit('send_message', { text: inputMsg, to: 'admin', file: fileData });
+    await insertMessage({ text: inputMsg, ...fileFields });
     setInputMsg('');
     setSelectedFile(null);
   };
 
-  const sendSticker = (url) => {
-    socket.emit('send_message', { text: '', to: 'admin', file: { type: 'sticker', dataUrl: url, name: 'Sticker' } });
+  const sendSticker = async (url) => {
+    await insertMessage({ text: '', file_path: url, file_name: 'Sticker', file_type: 'sticker' });
     setShowPicker(false);
   };
 
-  const formatSize = (b) => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
+  const formatSize = (b) =>
+    !b ? '' : b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(1) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
 
-  if (loadingBooking) {
-    return <div className="chat-container"><div className="glass-card" style={{ padding: '3rem 2rem', textAlign: 'center' }}><p style={{ color: 'var(--text-main)' }}>Loading...</p></div></div>;
+  if (authLoading || loadingBooking) {
+    return (
+      <div className="chat-container">
+        <div className="glass-card" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
+          <p style={{ color: 'var(--text-main)' }}>Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!hasBooking) {
@@ -152,7 +209,7 @@ const Chat = () => {
           </div>
           <h2 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Appointment Required</h2>
           <p style={{ color: 'var(--text-main)', marginBottom: '2rem', fontSize: '1.1rem' }}>
-            Please book a consultation session before chatting with Astro Dilip Sharma.
+            Please book a chat consultation before chatting with Astro Dilip Sharma.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Link to="/booking" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', padding: '1rem', color: 'var(--text-main)' }}>
@@ -167,62 +224,12 @@ const Chat = () => {
     );
   }
 
-  if (!isJoined) {
-    return (
-      <div className="chat-container">
-        <div className="join-chat-card glass-card" style={{ padding: '3rem 2rem' }}>
-          <h2 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Ready for Consultation?</h2>
-          <p style={{ color: 'var(--text-main)', marginBottom: '2rem' }}>
-            Click below to connect with Astro Dilip Sharma in real-time.
-          </p>
-          <form onSubmit={handleJoin} className="join-form">
-            <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '1rem', fontSize: '1.1rem', color: 'var(--text-main)' }}>
-              Start Chat Session
-            </button>
-          </form>
-          <button onClick={() => navigate('/booking')} className="btn-outline" style={{ width: '100%', marginTop: '1rem', justifyContent: 'center', color: 'var(--text-main)' }}>
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="chat-page-wrapper custom-chat-bg" style={{ position: 'relative' }}>
-      {sessionReminder && (
-        <div style={{
-          position: 'fixed', top: '10px', left: '50%', transform: 'translateX(-50%)',
-          zIndex: 1000, background: 'rgba(245, 158, 11, 0.15)', border: '2px solid #F59E0B',
-          borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)',
-          animation: 'slideDown 0.3s ease-out, pulseBorder 2s infinite'
-        }}>
-          <Bell color="#F59E0B" size={24} style={{ flexShrink: 0 }} />
-          <div>
-            <h4 style={{ color: '#F59E0B', margin: '0 0 4px 0' }}>Your session is starting now!</h4>
-            <p style={{ color: '#1A1400', margin: 0, fontSize: '0.9rem' }}>{sessionReminder.message}</p>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-            {['video', 'audio'].includes(sessionReminder.consultationType) && (
-              <Link to={`/call?type=${sessionReminder.consultationType}`} onClick={() => setSessionReminder(null)} className="btn-primary" style={{ padding: '8px 16px', background: '#F59E0B', color: '#000', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-                {sessionReminder.consultationType === 'video' ? <Video size={16} style={{marginRight: '6px'}} /> : <Phone size={16} style={{marginRight: '6px'}} />}
-                Join Now
-              </Link>
-            )}
-            <button onClick={() => setSessionReminder(null)} className="btn-outline" style={{ padding: '8px 16px', border: '1px solid rgba(26, 20, 0, 0.1)', color: '#1A1400' }}>
-              Dismiss
-            </button>
-          </div>
-        </div>
-      )}
-
-
-
       <div className="chat-interface custom-chat-panel">
         <div className="chat-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Link to="/booking" className="back-btn"><ArrowLeft size={20} /></Link>
+            <Link to="/my-bookings" className="back-btn"><ArrowLeft size={20} /></Link>
             <div className="header-info">
               <div className="avatar-wrapper">
                 <div className="avatar"><User size={24} /></div>
@@ -230,7 +237,7 @@ const Chat = () => {
               </div>
               <div>
                 <h3>Astro Dilip Sharma</h3>
-                <p className="subtitle">Vedic Astrologer Â· Typically replies instantly</p>
+                <p className="subtitle">Vedic Astrologer · Typically replies instantly</p>
               </div>
             </div>
           </div>
@@ -245,37 +252,39 @@ const Chat = () => {
           {messages.length === 0 ? (
             <div className="empty-chat"><p>Send a message to start your consultation.</p></div>
           ) : (
-            messages.map((msg, i) => {
-              const isMine = msg.from === localStorage.getItem('astrology_user_id');
+            messages.map((msg) => {
+              const isMine = msg.sender_id === userId;
+              const url = fileUrls[msg.id];
+              const isImage = msg.file_type && msg.file_type.startsWith('image/');
               return (
-                <div key={i} className={`message-wrapper slide-in ${isMine ? 'mine' : 'theirs'}`}>
+                <div key={msg.id} className={`message-wrapper slide-in ${isMine ? 'mine' : 'theirs'}`}>
                   {!isMine && <div className="msg-avatar"><User size={16} /></div>}
                   <div className="message-content">
                     <div className="message-bubble">
-                      {msg.file?.type === 'sticker' && <img src={msg.file.dataUrl} alt="Sticker" style={{ width: 100 }} />}
-                      {msg.file && msg.file.type !== 'sticker' && msg.file.type.startsWith('image/') && (
-                        <a href={msg.file.dataUrl} target="_blank" rel="noreferrer">
-                          <img src={msg.file.dataUrl} alt="attachment" style={{ maxWidth: '100%', borderRadius: 8 }} />
+                      {msg.file_type === 'sticker' && url && <img src={url} alt="Sticker" style={{ width: 100 }} />}
+                      {msg.file_type && msg.file_type !== 'sticker' && isImage && url && (
+                        <a href={url} target="_blank" rel="noreferrer">
+                          <img src={url} alt="attachment" style={{ maxWidth: '100%', borderRadius: 8 }} />
                         </a>
                       )}
-                      {msg.file && msg.file.type !== 'sticker' && !msg.file.type.startsWith('image/') && (
-                        <div className="file-attachment-bubble">
+                      {msg.file_type && msg.file_type !== 'sticker' && !isImage && (
+                        <a href={url} target="_blank" rel="noreferrer" className="file-attachment-bubble" style={{ textDecoration: 'none' }}>
                           <FileText size={24} />
                           <div className="file-meta">
-                            <span className="file-name">{msg.file.name}</span>
-                            <span className="file-size">{formatSize(msg.file.size)}</span>
+                            <span className="file-name">{msg.file_name}</span>
+                            <span className="file-size">{formatSize(msg.file_size)}</span>
                           </div>
-                        </div>
+                        </a>
                       )}
                       {msg.text && (
-                        <div style={msg.isReminder ? { background: 'rgba(245,158,11,0.1)', borderLeft: '3px solid #F59E0B', padding: '8px 12px', borderRadius: '4px' } : {}}>
-                          {msg.isReminder && <div style={{ color: '#F59E0B', marginBottom: '4px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> Reminder</div>}
+                        <div style={msg.is_reminder ? { background: 'rgba(245,158,11,0.1)', borderLeft: '3px solid #F59E0B', padding: '8px 12px', borderRadius: '4px' } : {}}>
+                          {msg.is_reminder && <div style={{ color: '#F59E0B', marginBottom: '4px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> Reminder</div>}
                           <p style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</p>
                         </div>
                       )}
                     </div>
                     <div className="msg-meta">
-                      <span className="timestamp">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="timestamp">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       {isMine && <CheckCheck size={14} className="seen-tick" />}
                     </div>
                   </div>
@@ -338,7 +347,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
-
-
-

@@ -410,3 +410,14 @@
     gap: 20px;
   }
 }
+
+/* Cal.com embed wrapper */
+.cal-embed-wrapper {
+  width: 100%;
+  height: 700px;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg-card);
+  box-shadow: 4px 4px 0px rgba(26, 20, 0, 1);
+}

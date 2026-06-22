@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 
 const SubmitBlog = () => {
   const navigate = useNavigate();
@@ -22,22 +23,24 @@ const SubmitBlog = () => {
       month: 'short', day: 'numeric', year: 'numeric'
     });
     
-    const payload = {
-      ...formData,
-      date: today
-    };
-
     try {
-      const res = await fetch('https://astrodilip-webapp.onrender.com/api/blogs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      // Public submission: always inserted as 'pending' for admin review.
+      // The optional photo is stored inline (data URL) since public users
+      // cannot write to the admin-only public-images bucket.
+      const { error } = await supabase.from('blogs').insert({
+        title: formData.title,
+        excerpt: formData.excerpt,
+        author: formData.author,
+        image: formData.image || null,
+        display_date: today,
+        status: 'pending',
       });
-      
-      if (res.ok) {
+
+      if (!error) {
         alert('Thank you for sharing your experience! It has been sent to Astro Dilip Sharma for review.');
         navigate('/');
       } else {
+        console.error(error);
         alert('Something went wrong. Please try again.');
       }
     } catch (err) {

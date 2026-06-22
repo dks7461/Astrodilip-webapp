@@ -12,11 +12,11 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Booking from './pages/Booking';
 import MyBookings from './pages/MyBookings';
-import CallSession from './pages/CallSession';
 import AboutUs from './pages/AboutUs';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import RefundPolicy from './pages/RefundPolicy';
+import RequireAdmin from './components/RequireAdmin';
 
 function App() {
   return (
@@ -30,13 +30,12 @@ function App() {
             <Route path="/courses" element={<Courses />} />
             <Route path="/calculators" element={<FreeCalculators />} />
             <Route path="/chat" element={<Chat />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
             <Route path="/write-experience" element={<SubmitBlog />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/booking" element={<Booking />} />
             <Route path="/my-bookings" element={<MyBookings />} />
-            <Route path="/call" element={<CallSession />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsConditions />} />

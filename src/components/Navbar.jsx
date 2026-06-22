@@ -1,26 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, PhoneCall, User, LogOut, Calendar } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
 
-  useEffect(() => {
-    const saved = localStorage.getItem('astrology_user');
-    if (saved) {
-      setUser(JSON.parse(saved));
-    } else {
-      setUser(null);
-    }
-  }, [location]);
+  const displayName = profile?.name || user?.user_metadata?.name || user?.email || '';
 
-  const handleLogout = () => {
-    localStorage.removeItem('astrology_user');
-    setUser(null);
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
   };
 
   useEffect(() => {
@@ -61,7 +56,7 @@ const Navbar = () => {
           {user ? (
             <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
               <div className="nav-user-info">
-                <User size={18} color="var(--primary)" /> <span className="nav-user-name">{user.name.split(' ')[0]}</span>
+                <User size={18} color="var(--primary)" /> <span className="nav-user-name">{displayName.split(' ')[0]}</span>
               </div>
               <button onClick={handleLogout} style={{background: 'transparent', border: 'none', color: 'var(--text-main)', cursor: 'pointer', display: 'flex', alignItems: 'center'}} title="Logout">
                 <LogOut size={18} />
