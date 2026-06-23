@@ -184,7 +184,7 @@ const Home = () => {
               <span style={{ whiteSpace: 'nowrap' }}>
                 with <span className="text-gradient">Astro Dilip Sharma</span>
               </span> <br />
-              <span style={{ fontSize: '0.55em', display: 'block', marginTop: '0.8rem', color: 'var(--text-main)', fontStyle: 'italic' }}>
+              <span style={{ fontSize: '0.7em', display: 'block', marginTop: '0.8rem', color: 'var(--text-main)', fontStyle: 'italic', fontFamily: '"Times New Roman", Times, serif' }}>
                 (Astrotalk and AstroYogi wale)
               </span>
             </h1>
