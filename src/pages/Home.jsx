@@ -213,7 +213,41 @@ const Home = () => {
             </div>
           </div>
           <div className="hero-image-wrapper">
-            <div className="glow-circle"></div>
+            <div className="sun-rays-container">
+              <svg viewBox="0 0 100 100" className="sun-rays-svg">
+                <defs>
+                  <radialGradient id="sun-glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#FF6B00" stopOpacity="0.5" />
+                    <stop offset="70%" stopColor="#FFA500" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#FFE999" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+                <g className="rays-group">
+                  {/* Principal rays */}
+                  <line x1="50" y1="50" x2="50" y2="2" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="50" y2="98" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="2" y2="50" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="98" y2="50" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" />
+                  
+                  {/* Diagonal rays */}
+                  <line x1="50" y1="50" x2="16" y2="16" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="84" y2="84" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="16" y2="84" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="84" y2="16" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" />
+                  
+                  {/* Intermediate smaller rays */}
+                  <line x1="50" y1="50" x2="31" y2="7" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="69" y2="7" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="93" y2="31" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="93" y2="69" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="69" y2="93" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="31" y2="93" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="7" y2="69" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="50" y1="50" x2="7" y2="31" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                </g>
+                <circle cx="50" cy="50" r="40" fill="url(#sun-glow)" />
+              </svg>
+            </div>
             <img src="/admin-photo.png" alt="Astro Dilip Sharma" className="hero-image" />
           </div>
         </div>
