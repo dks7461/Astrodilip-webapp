@@ -217,35 +217,41 @@ const Home = () => {
               <svg viewBox="0 0 100 100" className="sun-rays-svg">
                 <defs>
                   <radialGradient id="sun-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#FF6B00" stopOpacity="0.5" />
-                    <stop offset="70%" stopColor="#FFA500" stopOpacity="0.25" />
+                    <stop offset="0%" stopColor="#FF6B00" stopOpacity="0.45" />
+                    <stop offset="70%" stopColor="#FFA500" stopOpacity="0.2" />
                     <stop offset="100%" stopColor="#FFE999" stopOpacity="0" />
                   </radialGradient>
                 </defs>
                 <g className="rays-group">
-                  {/* Principal rays */}
-                  <line x1="50" y1="50" x2="50" y2="2" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="50" y2="98" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="2" y2="50" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="98" y2="50" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" />
-                  
-                  {/* Diagonal rays */}
-                  <line x1="50" y1="50" x2="16" y2="16" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="84" y2="84" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="16" y2="84" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="84" y2="16" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" />
-                  
-                  {/* Intermediate smaller rays */}
-                  <line x1="50" y1="50" x2="31" y2="7" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="69" y2="7" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="93" y2="31" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="93" y2="69" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="69" y2="93" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="31" y2="93" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="7" y2="69" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="50" y1="50" x2="7" y2="31" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" />
+                  {/* 12 Sharp Triangle Rays */}
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(30, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(60, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(90, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(120, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(150, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(180, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(210, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(240, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(270, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(300, 50, 50)" />
+                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(330, 50, 50)" />
+
+                  {/* 12 Wavy Flame Rays in between */}
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(15, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(45, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(75, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(105, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(135, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(165, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(195, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(225, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(255, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(285, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(315, 50, 50)" />
+                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(345, 50, 50)" />
                 </g>
-                <circle cx="50" cy="50" r="40" fill="url(#sun-glow)" />
+                <circle cx="50" cy="50" r="38" fill="url(#sun-glow)" />
               </svg>
             </div>
             <img src="/admin-photo.png" alt="Astro Dilip Sharma" className="hero-image" />

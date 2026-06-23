@@ -376,8 +376,8 @@
     height: 340px;
   }
   .sun-rays-container {
-    width: 430px;
-    height: 430px;
+    width: 480px;
+    height: 480px;
   }
   .hero-content {
     margin: 0 auto;
@@ -417,8 +417,8 @@
     height: 260px;
   }
   .sun-rays-container {
-    width: 340px;
-    height: 340px;
+    width: 380px;
+    height: 380px;
   }
   .hero-actions {
     flex-direction: column;
