@@ -213,7 +213,7 @@ const Home = () => {
             </div>
           </div>
           <div className="hero-image-wrapper">
-            <img src="/admin-photo.png" alt="Astro Dilip Sharma" className="hero-image" />
+            <img src={heroImg} alt="Astro Dilip Sharma" className="hero-image" />
           </div>
         </div>
       </section>

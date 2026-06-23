@@ -66,12 +66,10 @@
 
 .hero-image {
   width: 575px;
-  height: 575px;
-  object-fit: cover;
-  border-radius: 50%;
+  height: auto;
+  max-height: 600px;
+  object-fit: contain;
   z-index: 1;
-  box-shadow: 10px 10px 0px rgba(26, 20, 0, 1);
-  border: 2px solid var(--border);
 }
 
 /* New Services Section */
@@ -337,7 +335,7 @@
   }
   .hero-image {
     width: 475px;
-    height: 475px;
+    height: auto;
   }
   .hero-content {
     margin: 0 auto;
@@ -374,7 +372,7 @@
   }
   .hero-image {
     width: 375px;
-    height: 375px;
+    height: auto;
   }
   .hero-actions {
     flex-direction: column;
