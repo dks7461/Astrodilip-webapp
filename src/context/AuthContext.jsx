@@ -32,12 +32,17 @@ export function AuthProvider({ children }) {
     // Initial session load.
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!active) return;
-      setSession(session);
-      if (session?.access_token) {
-        supabase.realtime.setAuth(session.access_token);
+      try {
+        setSession(session);
+        if (session?.access_token) {
+          supabase.realtime.setAuth(session.access_token);
+        }
+        await loadProfile(session?.user?.id);
+      } catch (err) {
+        console.error("Error loading initial session:", err);
+      } finally {
+        setLoading(false);
       }
-      await loadProfile(session?.user?.id);
-      setLoading(false);
     });
 
     // React to login / logout / token refresh.
@@ -45,12 +50,18 @@ export function AuthProvider({ children }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!active) return;
-      setSession(session);
-      if (session?.access_token) {
-        supabase.realtime.setAuth(session.access_token);
+      setLoading(true);
+      try {
+        setSession(session);
+        if (session?.access_token) {
+          supabase.realtime.setAuth(session.access_token);
+        }
+        await loadProfile(session?.user?.id);
+      } catch (err) {
+        console.error("Error in auth state change:", err);
+      } finally {
+        setLoading(false);
       }
-      await loadProfile(session?.user?.id);
-      setLoading(false);
     });
 
     return () => {
