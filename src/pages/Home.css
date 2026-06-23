@@ -65,8 +65,8 @@
 }
 
 .hero-image {
-  width: 460px;
-  height: 460px;
+  width: 575px;
+  height: 575px;
   object-fit: cover;
   border-radius: 50%;
   z-index: 1;
@@ -336,8 +336,8 @@
     text-align: center;
   }
   .hero-image {
-    width: 380px;
-    height: 380px;
+    width: 475px;
+    height: 475px;
   }
   .hero-content {
     margin: 0 auto;
@@ -373,8 +373,8 @@
     font-size: 2.5rem;
   }
   .hero-image {
-    width: 300px;
-    height: 300px;
+    width: 375px;
+    height: 375px;
   }
   .hero-actions {
     flex-direction: column;
