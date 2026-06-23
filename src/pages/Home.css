@@ -20,7 +20,8 @@
 }
 
 .hero-title {
-  font-size: 4rem;
+  font-size: 3.2rem;
+  line-height: 1.25;
   margin-bottom: 1.5rem;
 }
 
@@ -343,7 +344,7 @@
     margin: 0 auto;
   }
   .hero-title {
-    font-size: 3rem;
+    font-size: 2.6rem;
   }
   .hero-actions {
     justify-content: center;
@@ -370,7 +371,7 @@
 
 @media (max-width: 576px) {
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2.1rem;
   }
   .hero-image {
     width: 375px;
