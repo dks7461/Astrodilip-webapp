@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowRight, Star, Shield } from 'lucide-react';
 import './Home.css';
@@ -49,9 +49,11 @@ import imgChild from '../assets/services/child.png';
 import imgEducation from '../assets/services/education.png';
 
 const Home = () => {
+  const location = useLocation();
+
   const astroServices = [
     { id: 1, title: 'Free Astrology', image: imgFree, link: '/calculators' },
-    { id: 2, title: 'Sun Signs', image: imgSunSigns, link: '/reports' },
+    { id: 2, title: 'Sun Signs', image: imgLove, link: '/reports' },
     { id: 3, title: 'Love', image: imgLove, link: '/reports' },
     { id: 4, title: 'Marriage', image: imgMarriage, link: '/reports' },
     { id: 5, title: 'Career', image: imgCareer, link: '/reports' },
@@ -74,6 +76,14 @@ const Home = () => {
     { id: 11, name: 'Aquarius', icon: 'https://img.icons8.com/color/96/aquarius.png' },
     { id: 12, name: 'Pisces', icon: 'https://img.icons8.com/color/96/pisces.png' }
   ];
+
+  const getFallbackImage = (title = '') => {
+    const t = title.toLowerCase();
+    if (t.includes('planetary') || t.includes('transit')) return '/courses/new-planetary transits.png';
+    if (t.includes('vastu')) return '/courses/new-vastu.png';
+    if (t.includes('lal kitab') || t.includes('lalkitab')) return '/courses/new-lalkitab.jpg';
+    return '/courses/course-vedic.png';
+  };
 
   const [blogsData, setBlogsData] = useState([
     {
@@ -110,6 +120,17 @@ const Home = () => {
   ]);
 
   useEffect(() => {
+    if (location.hash === '#blogs') {
+      const el = document.getElementById('blogs');
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+      }
+    }
+  }, [location]);
+
+  useEffect(() => {
     const fetchStats = async () => {
       const { data } = await supabase.from('site_content').select('value').eq('key', 'home_stats').single();
       if (data?.value?.length) setHomeStats(data.value);
@@ -135,7 +156,7 @@ const Home = () => {
               excerpt: b.excerpt,
               date: b.display_date,
               author: b.author,
-              image: b.image,
+              image: b.image || getFallbackImage(b.title),
               status: b.status,
             }))
           );
@@ -308,7 +329,7 @@ const Home = () => {
       </section>
 
       {/* Blog Section */}
-      <section className="blogs-section">
+      <section id="blogs" className="blogs-section">
         <ScrollReveal className="container section-big-card">
           <div className="blogs-header">
             <h2 className="blogs-title">Read Blogs from our Clients</h2>
