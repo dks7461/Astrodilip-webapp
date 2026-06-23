@@ -475,7 +475,15 @@ const Admin = () => {
                     {filteredBookings.map((b, i) => (
                       <tr key={b.id} style={{ borderBottom: '1px solid rgba(26,20,0,0.2)' }}>
                         <td style={{ padding: '14px' }}>{i + 1}</td>
-                        <td style={{ padding: '14px', fontWeight: 'bold' }}>{b.attendee_name || 'Unknown'}<div style={{ fontSize: 12, fontWeight: 'normal' }}>{b.attendee_email}</div></td>
+                        <td style={{ padding: '14px', fontWeight: 'bold' }}>
+                          {b.attendee_name || 'Unknown'}
+                          <div style={{ fontSize: 12, fontWeight: 'normal' }}>{b.attendee_email}</div>
+                          {b.notes && (
+                            <div style={{ fontSize: 11, fontWeight: 'normal', color: '#555', marginTop: '6px', background: 'rgba(0,0,0,0.03)', padding: '4px 8px', borderRadius: '4px', borderLeft: '3px solid #FF6B00', maxWidth: '300px', whiteSpace: 'pre-wrap' }}>
+                              <strong>Details:</strong> {b.notes}
+                            </div>
+                          )}
+                        </td>
                         <td style={{ padding: '14px' }}>{b.start_time ? new Date(b.start_time).toLocaleString('en-GB') : 'N/A'}</td>
                         <td style={{ padding: '14px' }}>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(26,20,0,0.1)', padding: '4px 10px', borderRadius: '12px', fontSize: '12px' }}>
