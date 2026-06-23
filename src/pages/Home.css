@@ -66,10 +66,12 @@
 
 .hero-image {
   width: 575px;
-  height: auto;
-  max-height: 600px;
-  object-fit: contain;
+  height: 575px;
+  object-fit: cover;
+  border-radius: 50%;
   z-index: 1;
+  box-shadow: 10px 10px 0px rgba(26, 20, 0, 1);
+  border: 2px solid var(--border);
 }
 
 /* New Services Section */
@@ -335,7 +337,7 @@
   }
   .hero-image {
     width: 475px;
-    height: auto;
+    height: 475px;
   }
   .hero-content {
     margin: 0 auto;
@@ -372,7 +374,7 @@
   }
   .hero-image {
     width: 375px;
-    height: auto;
+    height: 375px;
   }
   .hero-actions {
     flex-direction: column;
@@ -619,10 +621,7 @@
 .home-about-image {
   max-width: 100%;
   height: auto;
-  border-radius: 20px;
   z-index: 1;
-  box-shadow: 10px 10px 0px rgba(26, 20, 0, 1);
-  border: 2px solid var(--border);
 }
 
 .home-about-content {
