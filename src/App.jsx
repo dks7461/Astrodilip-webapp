@@ -17,6 +17,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import RefundPolicy from './pages/RefundPolicy';
 import RequireAdmin from './components/RequireAdmin';
+import Blogs from './pages/Blogs';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/blogs" element={<Blogs />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/calculators" element={<FreeCalculators />} />

@@ -75,9 +75,10 @@
 }
 
 .hero-image {
-  max-width: 100%;
-  height: auto;
-  border-radius: 20px;
+  width: 420px;
+  height: 420px;
+  object-fit: cover;
+  border-radius: 50%;
   z-index: 1;
   box-shadow: 10px 10px 0px rgba(26, 20, 0, 1);
   border: 2px solid var(--border);
@@ -344,6 +345,10 @@
     flex-direction: column;
     text-align: center;
   }
+  .hero-image {
+    width: 340px;
+    height: 340px;
+  }
   .hero-content {
     margin: 0 auto;
   }
@@ -376,6 +381,10 @@
 @media (max-width: 576px) {
   .hero-title {
     font-size: 2.5rem;
+  }
+  .hero-image {
+    width: 260px;
+    height: 260px;
   }
   .hero-actions {
     flex-direction: column;
