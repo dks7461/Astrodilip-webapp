@@ -64,45 +64,9 @@
   margin-top: 1.5rem;
 }
 
-.sun-rays-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 640px;
-  height: 640px;
-  z-index: 0;
-  pointer-events: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.sun-rays-svg {
-  width: 100%;
-  height: 100%;
-  animation: rotateRays 45s linear infinite;
-}
-
-.rays-group {
-  transform-origin: 50px 50px;
-  animation: pulseRays 5s ease-in-out infinite;
-}
-
-@keyframes rotateRays {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes pulseRays {
-  0% { transform: scale(0.96); opacity: 0.8; }
-  50% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(0.96); opacity: 0.8; }
-}
-
 .hero-image {
-  width: 420px;
-  height: 420px;
+  width: 460px;
+  height: 460px;
   object-fit: cover;
   border-radius: 50%;
   z-index: 1;
@@ -372,12 +336,8 @@
     text-align: center;
   }
   .hero-image {
-    width: 340px;
-    height: 340px;
-  }
-  .sun-rays-container {
-    width: 530px;
-    height: 530px;
+    width: 380px;
+    height: 380px;
   }
   .hero-content {
     margin: 0 auto;
@@ -413,12 +373,8 @@
     font-size: 2.5rem;
   }
   .hero-image {
-    width: 260px;
-    height: 260px;
-  }
-  .sun-rays-container {
-    width: 410px;
-    height: 410px;
+    width: 300px;
+    height: 300px;
   }
   .hero-actions {
     flex-direction: column;

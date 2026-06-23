@@ -213,37 +213,6 @@ const Home = () => {
             </div>
           </div>
           <div className="hero-image-wrapper">
-            <div className="sun-rays-container">
-              <svg viewBox="0 0 100 100" className="sun-rays-svg">
-                <defs>
-                  <radialGradient id="sun-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#FF6B00" stopOpacity="0.45" />
-                    <stop offset="70%" stopColor="#FFA500" stopOpacity="0.2" />
-                    <stop offset="100%" stopColor="#FFE999" stopOpacity="0" />
-                  </radialGradient>
-                </defs>
-                <g className="rays-group">
-                  {/* 16 Large Wavy Sun Rays */}
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(22.5, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(45, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(67.5, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(90, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(112.5, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(135, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(157.5, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(180, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(202.5, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(225, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(247.5, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(270, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(292.5, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(315, 50, 50)" />
-                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(337.5, 50, 50)" />
-                </g>
-                <circle cx="50" cy="50" r="36" fill="url(#sun-glow)" />
-              </svg>
-            </div>
             <img src="/admin-photo.png" alt="Astro Dilip Sharma" className="hero-image" />
           </div>
         </div>
