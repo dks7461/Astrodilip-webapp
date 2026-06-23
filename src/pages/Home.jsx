@@ -223,35 +223,25 @@ const Home = () => {
                   </radialGradient>
                 </defs>
                 <g className="rays-group">
-                  {/* 12 Sharp Triangle Rays */}
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(30, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(60, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(90, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(120, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(150, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(180, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(210, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(240, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(270, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(300, 50, 50)" />
-                  <path d="M 47,38 L 50,2 L 53,38 Z" fill="#FF6B00" transform="rotate(330, 50, 50)" />
-
-                  {/* 12 Wavy Flame Rays in between */}
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(15, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(45, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(75, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(105, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(135, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(165, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(195, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(225, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(255, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(285, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(315, 50, 50)" />
-                  <path d="M 48,38 C 46,25 54,15 50,8 C 47,15 53,25 52,38 Z" fill="#FFA500" transform="rotate(345, 50, 50)" />
+                  {/* 16 Large Wavy Sun Rays */}
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(22.5, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(45, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(67.5, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(90, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(112.5, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(135, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(157.5, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(180, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(202.5, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(225, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(247.5, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(270, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(292.5, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FF6B00" transform="rotate(315, 50, 50)" />
+                  <path d="M 46,36 C 42,22 55,14 50,2 C 45,14 58,22 54,36 Z" fill="#FFA500" transform="rotate(337.5, 50, 50)" />
                 </g>
-                <circle cx="50" cy="50" r="38" fill="url(#sun-glow)" />
+                <circle cx="50" cy="50" r="36" fill="url(#sun-glow)" />
               </svg>
             </div>
             <img src="/admin-photo.png" alt="Astro Dilip Sharma" className="hero-image" />
