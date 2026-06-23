@@ -6,16 +6,16 @@
 .hero-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6rem;
+  justify-content: space-between;
+  gap: 3rem;
   width: 100%;
   max-width: 100%;
   min-width: 0;
 }
 
 .hero-content {
-  flex: 1;
-  max-width: 600px;
+  flex: 1.4;
+  max-width: 700px;
   min-width: 0;
 }
 
@@ -60,7 +60,7 @@
   flex: 1;
   position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 1.5rem;
 }

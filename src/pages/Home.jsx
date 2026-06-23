@@ -181,7 +181,9 @@ const Home = () => {
           <div className="hero-content">
             <h1 className="hero-title">
               Navigate Your Destiny <br />
-              with <span className="text-gradient">Astro Dilip Sharma</span> <br />
+              <span style={{ whiteSpace: 'nowrap' }}>
+                with <span className="text-gradient">Astro Dilip Sharma</span>
+              </span> <br />
               <span style={{ fontSize: '0.55em', display: 'block', marginTop: '0.4rem', color: 'var(--text-main)', fontStyle: 'italic' }}>
                 (Astrotalk and AstroYogi wale)
               </span>
