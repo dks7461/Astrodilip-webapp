@@ -185,7 +185,7 @@ const Home = () => {
                 with <span className="text-gradient">Astro Dilip Sharma</span>
               </span> <br />
               <span style={{ fontSize: '0.7em', display: 'block', marginTop: '0.8rem', color: 'var(--text-main)', fontStyle: 'italic', fontFamily: '"Times New Roman", Times, serif' }}>
-                (Astrotalk and AstroYogi wale)
+                (Astrotalk and Astroyogi wale)
               </span>
             </h1>
             <p className="hero-subtitle">
@@ -206,7 +206,7 @@ const Home = () => {
               </div>
               <div className="badge">
                 <Star size={20} className="badge-icon" />
-                <span>4.6/5 &nbsp;&nbsp; Rated in AstroYogi</span>
+                <span>4.6/5 &nbsp;&nbsp; Rated in Astroyogi</span>
               </div>
               <div className="badge">
                 <Shield size={20} className="badge-icon" />
