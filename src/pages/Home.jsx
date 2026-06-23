@@ -181,7 +181,10 @@ const Home = () => {
           <div className="hero-content">
             <h1 className="hero-title">
               Navigate Your Destiny with <br />
-              <span className="text-gradient">Astro Dilip Sharma</span>
+              <span className="text-gradient">Astro Dilip Sharma</span> <br />
+              <span style={{ fontSize: '0.55em', display: 'block', marginTop: '0.4rem', color: 'var(--text-main)' }}>
+                (Astrotalk and AstroYogi wale)
+              </span>
             </h1>
             <p className="hero-subtitle">
               India's premier astrologer. Discover the cosmic blueprint of your life with expert Vedic astrology, numerology, and Vastu consultations.
@@ -194,10 +197,14 @@ const Home = () => {
                 Free Kundli
               </Link>
             </div>
-            <div className="trust-badges">
+            <div className="trust-badges" style={{ flexWrap: 'wrap', gap: '1.5rem' }}>
               <div className="badge">
                 <Star size={20} className="badge-icon" />
                 <span>4.8/5 &nbsp;&nbsp; Rated in Astrotalk</span>
+              </div>
+              <div className="badge">
+                <Star size={20} className="badge-icon" />
+                <span>4.6/5 &nbsp;&nbsp; Rated in AstroYogi</span>
               </div>
               <div className="badge">
                 <Shield size={20} className="badge-icon" />
