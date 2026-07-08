@@ -39,11 +39,22 @@
   border-color: #ff0000;
 }
 
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
 .videos-player-wrapper {
   padding: 1rem;
   aspect-ratio: 16 / 9;
   max-width: 900px;
   margin: 0 auto;
+}
+
+.videos-grid .videos-player-wrapper {
+  max-width: none;
+  margin: 0;
 }
 
 .videos-player-wrapper iframe {

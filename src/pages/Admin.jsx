@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, MoreVertical, Paperclip, Smile, X, FileText, CheckCheck, Users, Calendar, BarChart3, Search, Trash2, Video, Phone, MessageSquare, BookOpen, Settings, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { extractYouTubeId, youtubeThumbnail } from '../lib/youtube';
 import { useAuth } from '../context/AuthContext';
 import './Chat.css';
 
@@ -54,6 +55,8 @@ const Admin = () => {
   const [editBlog, setEditBlog] = useState(null);
   const [courses, setCourses] = useState([]);
   const [editCourse, setEditCourse] = useState(null);
+  const [channelVideos, setChannelVideos] = useState([]);
+  const [newVideoUrl, setNewVideoUrl] = useState('');
   const [consultTypes, setConsultTypes] = useState([]);
   const [stats, setStats] = useState(null);
   const [content, setContent] = useState({});
@@ -159,6 +162,12 @@ const Admin = () => {
     const { data } = await supabase.from('consultation_types').select('*').order('sort_order');
     setConsultTypes(data || []);
   }, []);
+  const fetchChannelVideos = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase.from('channel_videos').select('*').order('created_at', { ascending: false });
+    setChannelVideos(data || []);
+    setLoading(false);
+  }, []);
   const fetchStats = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase.rpc('admin_stats');
@@ -178,9 +187,10 @@ const Admin = () => {
     if (activeTab === 'users') fetchProfiles();
     if (activeTab === 'blogs') fetchBlogs();
     if (activeTab === 'courses') fetchCourses();
+    if (activeTab === 'videos') fetchChannelVideos();
     if (activeTab === 'content') { fetchConsultTypes(); fetchContent(); }
     if (activeTab === 'stats') fetchStats();
-  }, [activeTab, fetchProfiles, fetchBlogs, fetchCourses, fetchConsultTypes, fetchContent, fetchStats]);
+  }, [activeTab, fetchProfiles, fetchBlogs, fetchCourses, fetchChannelVideos, fetchConsultTypes, fetchContent, fetchStats]);
 
   // ── Image upload helper (public-images bucket) ──
   const uploadImage = async (file) => {
@@ -282,6 +292,20 @@ const Admin = () => {
     await supabase.from('courses').delete().eq('id', id);
     fetchCourses();
   };
+  const postVideo = async (e) => {
+    e.preventDefault();
+    const youtubeId = extractYouTubeId(newVideoUrl);
+    if (!youtubeId) return alert("That doesn't look like a valid YouTube video link.");
+    const { error } = await supabase.from('channel_videos').insert({ youtube_id: youtubeId, url: newVideoUrl });
+    if (error) return alert('Failed: ' + error.message);
+    setNewVideoUrl('');
+    fetchChannelVideos();
+  };
+  const deleteVideo = async (id) => {
+    if (!window.confirm('Remove this video from the site?')) return;
+    await supabase.from('channel_videos').delete().eq('id', id);
+    fetchChannelVideos();
+  };
   const saveConsultType = async (ct) => {
     await supabase.from('consultation_types').update({
       title: ct.title, description: ct.description, price: ct.price, duration: ct.duration, cal_event_slug: ct.cal_event_slug, is_active: ct.is_active,
@@ -323,6 +347,7 @@ const Admin = () => {
         <button onClick={() => setActiveTab('users')} style={TAB_STYLE(activeTab === 'users')}><Users size={18} /> Users</button>
         <button onClick={() => setActiveTab('blogs')} style={TAB_STYLE(activeTab === 'blogs')}><FileText size={18} /> Blogs</button>
         <button onClick={() => setActiveTab('courses')} style={TAB_STYLE(activeTab === 'courses')}><BookOpen size={18} /> Courses</button>
+        <button onClick={() => setActiveTab('videos')} style={TAB_STYLE(activeTab === 'videos')}><Video size={18} /> Videos</button>
         <button onClick={() => setActiveTab('content')} style={TAB_STYLE(activeTab === 'content')}><Settings size={18} /> Content</button>
         <button onClick={() => setActiveTab('stats')} style={TAB_STYLE(activeTab === 'stats')}><BarChart3 size={18} /> Stats</button>
       </div>
@@ -617,6 +642,35 @@ const Admin = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ===== VIDEOS (YouTube links shown on the public Videos page) ===== */}
+        {activeTab === 'videos' && (
+          <div className="admin-panel-content" style={{ padding: '24px', overflowY: 'auto', height: '100%' }}>
+            <h2 style={{ margin: '0 0 24px 0', color: '#1A1400' }}>Manage Videos</h2>
+            <form onSubmit={postVideo} style={{ display: 'flex', gap: 12, marginBottom: 32, maxWidth: 600 }}>
+              <input
+                type="url"
+                placeholder="Paste a YouTube video link, e.g. https://youtu.be/..."
+                value={newVideoUrl}
+                onChange={(e) => setNewVideoUrl(e.target.value)}
+                required
+                style={{ ...inputStyle, flex: 1 }}
+              />
+              <button type="submit" style={btnPrimary}><Plus size={16} /> Post</button>
+            </form>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+              {channelVideos.map((v) => (
+                <div key={v.id} style={{ background: '#FFF', border: '2px solid #1A1400', borderRadius: 12, padding: 16, boxShadow: '4px 4px 0 #1A1400' }}>
+                  <img src={youtubeThumbnail(v.youtube_id)} alt="" style={{ width: '100%', height: 150, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
+                  <p style={{ margin: '0 0 8px', fontSize: 13, color: '#666' }}>{fmtDate(v.created_at)}</p>
+                  <button onClick={() => deleteVideo(v.id)} style={{ ...btnGhost, color: '#B91C1C', borderColor: '#B91C1C' }}>Delete</button>
+                </div>
+              ))}
+              {channelVideos.length === 0 && <p style={{ fontStyle: 'italic' }}>No videos posted yet.</p>}
             </div>
           </div>
         )}
