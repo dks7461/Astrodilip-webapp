@@ -11,6 +11,7 @@ import Charts from './pages/Charts';
 import LalKitab from './pages/LalKitab';
 import KPAstrology from './pages/KPAstrology';
 import Tarot from './pages/Tarot';
+import Videos from './pages/Videos';
 import Chat from './pages/Chat';
 import Admin from './pages/Admin';
 import SubmitBlog from './pages/SubmitBlog';
@@ -43,6 +44,7 @@ function App() {
             <Route path="/lal-kitab" element={<LalKitab />} />
             <Route path="/kp-astrology" element={<KPAstrology />} />
             <Route path="/tarot" element={<Tarot />} />
+            <Route path="/videos" element={<Videos />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
             <Route path="/write-experience" element={<SubmitBlog />} />

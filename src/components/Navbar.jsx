@@ -45,6 +45,7 @@ const Navbar = () => {
           <Link to="/reports" className={location.pathname === '/reports' ? 'active-link' : ''} onClick={closeMenu}>Reports</Link>
           <Link to="/calculators" className={location.pathname === '/calculators' ? 'active-link' : ''} onClick={closeMenu}>Free Calculators</Link>
           <Link to="/blogs" className={location.pathname === '/blogs' ? 'active-link' : ''} onClick={closeMenu}>Blogs</Link>
+          <Link to="/videos" className={location.pathname === '/videos' ? 'active-link' : ''} onClick={closeMenu}>Videos</Link>
           <Link to="/about" className={location.pathname === '/about' ? 'active-link' : ''} onClick={closeMenu}>About Us</Link>
           {user && (
             <Link to="/my-bookings" className={location.pathname === '/my-bookings' ? 'active-link' : ''} onClick={closeMenu} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
