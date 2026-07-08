@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User as UserIcon, Phone } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Phone, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import './Auth.css';
 
@@ -9,6 +9,7 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
@@ -83,13 +84,22 @@ const Signup = () => {
           </div>
           <div className="input-group">
             <Lock size={20} className="input-icon" />
-            <input 
-              type="password" 
-              placeholder="Password" 
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className="has-toggle"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
           
           <button type="submit" className="btn-primary" disabled={loading} style={{width: '100%', justifyContent: 'center', marginTop: '1rem'}}>

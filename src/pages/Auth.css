@@ -70,6 +70,22 @@
   color: rgba(26, 20, 0, 0.6);
 }
 
+.input-group input.has-toggle {
+  padding-right: 3rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
 .auth-error {
   background: rgba(239, 68, 68, 0.1);
   color: #EF4444;
