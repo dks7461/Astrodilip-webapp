@@ -1,0 +1,21 @@
+.chart-select {
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #1A1400;
+  background: transparent;
+  color: #1A1400;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+.chart-result {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.chart-result svg {
+  max-width: 100%;
+  height: auto;
+}

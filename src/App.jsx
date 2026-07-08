@@ -5,6 +5,12 @@ import Home from './pages/Home';
 import Reports from './pages/Reports';
 import Courses from './pages/Courses';
 import FreeCalculators from './pages/FreeCalculators';
+import Dasha from './pages/Dasha';
+import DoshCheck from './pages/DoshCheck';
+import Charts from './pages/Charts';
+import LalKitab from './pages/LalKitab';
+import KPAstrology from './pages/KPAstrology';
+import Tarot from './pages/Tarot';
 import Chat from './pages/Chat';
 import Admin from './pages/Admin';
 import SubmitBlog from './pages/SubmitBlog';
@@ -31,6 +37,12 @@ function App() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/calculators" element={<FreeCalculators />} />
+            <Route path="/dasha" element={<Dasha />} />
+            <Route path="/dosh-check" element={<DoshCheck />} />
+            <Route path="/charts" element={<Charts />} />
+            <Route path="/lal-kitab" element={<LalKitab />} />
+            <Route path="/kp-astrology" element={<KPAstrology />} />
+            <Route path="/tarot" element={<Tarot />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
             <Route path="/write-experience" element={<SubmitBlog />} />

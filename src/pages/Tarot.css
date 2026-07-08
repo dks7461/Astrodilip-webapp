@@ -1,0 +1,23 @@
+.tarot-card-result {
+  text-align: center;
+}
+
+.tarot-answer-badge {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  border-radius: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 2px solid var(--border);
+}
+
+.tarot-answer-badge.yes {
+  background: #4ade80;
+  color: var(--text-main);
+}
+
+.tarot-answer-badge.no {
+  background: #f87171;
+  color: var(--text-main);
+}

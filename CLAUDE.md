@@ -37,8 +37,13 @@ Supabase Realtime. Messages persist in the `messages` table (one conversation pe
 ### Design system
 Warm theme: primary orange `#FF6B00`, cream bg `#FFE999`, dark brown text/border `#1A1400`, skeuomorphic hard shadows (`4px 4px 0`). Tokens in [src/index.css](src/index.css). Keep new UI consistent with these; the admin dashboard reuses [src/pages/Chat.css](src/pages/Chat.css) classes plus shared inline style objects (`btnPrimary`, `btnGhost`, `inputStyle`).
 
+### Astrology data (JyotishamAstroAPI)
+[src/lib/jyotishamApi.js](src/lib/jyotishamApi.js) wraps `api.jyotishamastroapi.com` (key: `VITE_JYOTISHAM_API_KEY`, header `key`). Birth-city inputs are geocoded client-side via free OpenStreetMap Nominatim ([src/lib/geocode.js](src/lib/geocode.js)); timezone is hardcoded to IST (+5:30) since the site targets Indian users. **The API's date format is inconsistent per endpoint** (confirmed against its Postman docs, not documented by the API itself): `panchang/*` and `numerology/*` want `DD/MM/YYYY` (`toApiDateDMY`), `horoscope/*` and `matching/*` want `YYYY/MM/DD` (`toApiDateYMD`) — always verify against the docs before adding a new endpoint call rather than assuming a category-wide pattern. `chart_image/*` endpoints are the one exception that don't use the `{status, response}` envelope — they return a bare SVG string (`jyotishamGetSvg`).
+
+Pages built on this API: [PanchangWidget.jsx](src/components/PanchangWidget.jsx) (homepage daily panchang), [Reports.jsx](src/pages/Reports.jsx) (Kundli/planet details), [FreeCalculators.jsx](src/pages/FreeCalculators.jsx) (Love Match, Numerology, Daily/Weekly/Monthly/Yearly Horoscope by sign, quick Western zodiac match, plus links out to the pages below), [Dasha.jsx](src/pages/Dasha.jsx), [DoshCheck.jsx](src/pages/DoshCheck.jsx), [Charts.jsx](src/pages/Charts.jsx) (divisional chart SVGs), [LalKitab.jsx](src/pages/LalKitab.jsx), [KPAstrology.jsx](src/pages/KPAstrology.jsx), and [Tarot.jsx](src/pages/Tarot.jsx). `BirthDetailsForm.jsx` is the shared DOB/TOB/city form used by most of these.
+
 ## Environment variables
-Vite (`VITE_`-prefixed, see [.env.example](.env.example)): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_CALCOM_URL`, `VITE_CALCOM_USERNAME`, `VITE_VEDIC_ASTRO_API_KEY`. The Supabase **service-role** key is used only in Edge Function secrets, never in the frontend.
+Vite (`VITE_`-prefixed, see [.env.example](.env.example)): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_CALCOM_URL`, `VITE_CALCOM_USERNAME`, `VITE_JYOTISHAM_API_KEY`. The Supabase **service-role** key is used only in Edge Function secrets, never in the frontend.
 
 ## Known placeholders (not yet dynamic)
-The Panchang widget and Reports-page geocoding (`src/components/PanchangWidget.jsx`, `src/pages/Reports.jsx`) are still static. Payments are deferred — `bookings.payment_status` defaults to `waived`; stats revenue comes from `course_enrollments` marked `paid` (₹0 until payments resume).
+Payments are deferred — `bookings.payment_status` defaults to `waived`; stats revenue comes from `course_enrollments` marked `paid` (₹0 until payments resume).

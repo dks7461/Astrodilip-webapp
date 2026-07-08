@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Search, Loader, AlertCircle } from 'lucide-react';
+import { geocodeCity, DEFAULT_TZ } from '../lib/geocode';
+import { jyotishamGet, toApiDateYMD, toApiTime } from '../lib/jyotishamApi';
 import './Reports.css';
 
 const Reports = () => {
@@ -10,7 +12,7 @@ const Reports = () => {
     tob: '',
     location: ''
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -26,55 +28,42 @@ const Reports = () => {
     setError('');
     setResult(null);
 
-    const apiKey = import.meta.env.VITE_VEDIC_ASTRO_API_KEY;
-
     try {
-      if (!apiKey) {
-        // Fallback to mock data if API key is not set
-        console.warn("VITE_VEDIC_ASTRO_API_KEY is not set. Using mock data.");
-        setTimeout(() => {
-          setResult({
-            isMock: true,
-            ascendant: 'Leo',
-            moonSign: 'Aries',
-            sunSign: 'Sagittarius',
-            planets: [
-              { name: 'Sun', house: 5, sign: 'Sagittarius', degree: 14.5 },
-              { name: 'Moon', house: 9, sign: 'Aries', degree: 22.1 },
-              { name: 'Mars', house: 1, sign: 'Leo', degree: 5.3 },
-              { name: 'Mercury', house: 4, sign: 'Scorpio', degree: 18.9 }
-            ],
-            prediction: "You have a strong fiery disposition. The placement of Mars in your ascendant gives you excellent leadership qualities, while your Moon in the 9th house indicates a spiritual journey and fortune from higher education."
-          });
-          setLoading(false);
-        }, 1500);
-        return;
-      }
+      const { lat, lon } = await geocodeCity(formData.location);
+      const params = {
+        date: toApiDateYMD(formData.dob),
+        time: toApiTime(formData.tob),
+        latitude: lat,
+        longitude: lon,
+        tz: DEFAULT_TZ,
+      };
 
-      // If API key exists, format data and make actual request
-      // Note: This assumes parsing the input into lat/lon/tz which usually requires a geocoding step.
-      // For demonstration, we assume a static location if a real geocoder isn't hooked up.
-      
-      const [year, month, day] = formData.dob.split('-');
-      const [hour, minute] = formData.tob.split(':');
+      const [planetDetails, characteristics] = await Promise.all([
+        jyotishamGet('horoscope/planet-details', params),
+        jyotishamGet('horoscope/personal-characteristics', params),
+      ]);
 
-      const url = `https://api.vedicastroapi.com/v3-json/horoscope/planet-details?dob=${day}/${month}/${year}&tob=${hour}:${minute}&lat=28.6139&lon=77.2090&tz=5.5&api_key=${apiKey}&lang=en`;
+      const planets = Array.from({ length: 10 }, (_, i) => planetDetails[String(i)]).filter(Boolean);
+      const moon = planets.find((p) => p.full_name === 'Moon');
+      const sun = planets.find((p) => p.full_name === 'Sun');
 
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.status === 200) {
-        setResult({
-          isMock: false,
-          data: data.response
-        });
-      } else {
-        throw new Error(data.msg || "Failed to fetch astrology data.");
-      }
+      setResult({
+        ascendant: planetDetails['0']?.zodiac,
+        moonSign: moon?.zodiac,
+        sunSign: sun?.zodiac,
+        rasi: planetDetails.rasi,
+        nakshatra: planetDetails.nakshatra,
+        currentDasha: planetDetails.current_dasa,
+        luckyGem: planetDetails.lucky_gem,
+        luckyNum: planetDetails.lucky_num,
+        luckyColors: planetDetails.lucky_colors,
+        planets: planets.map((p) => ({ name: p.full_name, house: p.house, sign: p.zodiac, degree: p.local_degree })),
+        prediction: characteristics['0']?.personalised_prediction,
+      });
     } catch (err) {
       setError(err.message || 'An error occurred while fetching the report.');
     } finally {
-      if (apiKey) setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -88,7 +77,7 @@ const Reports = () => {
       <div className="container">
         <h1 className="section-title">Generate Basic Kundli</h1>
         <p className="reports-subtitle" style={{ color: '#1A1400', fontWeight: '500' }}>
-          Enter your birth details below to generate your personalized Janam Kundli and planetary positions report powered by Vedic Astro API.
+          Enter your birth details below to generate your personalized Janam Kundli and planetary positions report.
         </p>
 
         <div className="reports-container">
@@ -140,50 +129,58 @@ const Reports = () => {
 
             {result && (
               <div className="glass-card result-card fade-in">
-                {result.isMock && (
-                  <div className="mock-badge">
-                    Preview Mode (API Key not set)
-                  </div>
-                )}
-                
                 <h2 className="result-title">Kundli Overview for {formData.name || 'You'}</h2>
-                
-                {result.isMock ? (
+
+                <div className="stats-grid-small">
+                  <div className="stat-box">
+                    <span>Ascendant (Lagna)</span>
+                    <h4>{result.ascendant}</h4>
+                  </div>
+                  <div className="stat-box">
+                    <span>Moon Sign (Rasi)</span>
+                    <h4>{result.moonSign}</h4>
+                  </div>
+                  <div className="stat-box">
+                    <span>Sun Sign</span>
+                    <h4>{result.sunSign}</h4>
+                  </div>
+                  <div className="stat-box">
+                    <span>Nakshatra</span>
+                    <h4>{result.nakshatra}</h4>
+                  </div>
+                  <div className="stat-box">
+                    <span>Current Dasha</span>
+                    <h4>{result.currentDasha}</h4>
+                  </div>
+                  <div className="stat-box">
+                    <span>Lucky Number</span>
+                    <h4>{result.luckyNum}</h4>
+                  </div>
+                </div>
+
+                {(result.luckyGem || result.luckyColors) && (
+                  <p className="reports-subtitle" style={{ margin: '0 0 2rem', color: '#1A1400' }}>
+                    {result.luckyGem && <>Lucky Gem: <strong>{result.luckyGem}</strong>. </>}
+                    {result.luckyColors && <>Lucky Colors: <strong>{result.luckyColors}</strong>.</>}
+                  </p>
+                )}
+
+                <h3 className="sub-title">Planetary Positions</h3>
+                <div className="planets-list">
+                  {result.planets.map((p, i) => (
+                    <div key={i} className="planet-item">
+                      <span className="planet-name">{p.name}</span>
+                      <span className="planet-house">House {p.house}</span>
+                      <span className="planet-sign">{p.sign}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {result.prediction && (
                   <>
-                    <div className="stats-grid-small">
-                      <div className="stat-box">
-                        <span>Ascendant (Lagna)</span>
-                        <h4>{result.ascendant}</h4>
-                      </div>
-                      <div className="stat-box">
-                        <span>Moon Sign (Rasi)</span>
-                        <h4>{result.moonSign}</h4>
-                      </div>
-                      <div className="stat-box">
-                        <span>Sun Sign</span>
-                        <h4>{result.sunSign}</h4>
-                      </div>
-                    </div>
-
-                    <h3 className="sub-title">Planetary Positions</h3>
-                    <div className="planets-list">
-                      {result.planets.map((p, i) => (
-                        <div key={i} className="planet-item">
-                          <span className="planet-name">{p.name}</span>
-                          <span className="planet-house">House {p.house}</span>
-                          <span className="planet-sign">{p.sign}</span>
-                        </div>
-                      ))}
-                    </div>
-
                     <h3 className="sub-title">Basic Prediction</h3>
                     <p className="prediction-text">{result.prediction}</p>
                   </>
-                ) : (
-                  <div className="api-raw-data">
-                    <p>API Data successfully fetched. (Implement specific UI mapping for actual API response fields here)</p>
-                    <pre>{JSON.stringify(result.data, null, 2)}</pre>
-                  </div>
                 )}
               </div>
             )}

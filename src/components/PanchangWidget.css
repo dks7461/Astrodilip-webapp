@@ -78,19 +78,25 @@
   margin-bottom: 1rem;
 }
 
+.panchang-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .panchang-label {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.85rem;
   color: var(--text-main);
-  margin-bottom: 0.3rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .panchang-value {
-  font-size: 1rem;
+  font-size: 1.15rem;
   color: var(--text-main);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .muhurat-container {

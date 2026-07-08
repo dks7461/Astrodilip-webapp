@@ -44,9 +44,10 @@ const Footer = () => {
           <div className="footer-services">
             <h4>Our Services</h4>
             <ul>
-              <li><Link to="/booking">Kundli Matching</Link></li>
-              <li><Link to="/booking">Personal Horoscope</Link></li>
-              <li><Link to="/booking">Numerology Report</Link></li>
+              <li><Link to="/calculators?tab=love">Kundli Matching</Link></li>
+              <li><Link to="/reports">Personal Horoscope</Link></li>
+              <li><Link to="/calculators?tab=numerology">Numerology Report</Link></li>
+              <li><Link to="/dosh-check">Dosh Check</Link></li>
               <li><Link to="/booking">Online Puja</Link></li>
               <li><Link to="/booking">Vastu Consultation</Link></li>
             </ul>
