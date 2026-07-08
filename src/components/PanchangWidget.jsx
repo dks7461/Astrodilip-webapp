@@ -2,13 +2,44 @@
 import { Sun, Moon, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import './PanchangWidget.css';
 
+// New Delhi, India (matches the widget's displayed location)
+const LOCATION = { lat: 28.6139, lon: 77.209, tz: 5.5 };
+
+const pad2 = (n) => String(n).padStart(2, '0');
+const toApiDate = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+const toApiTime = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+
 const PanchangWidget = () => {
   const [currentDate, setCurrentDate] = useState('');
-  
+  const [panchang, setPanchang] = useState(null);
+
   useEffect(() => {
+    const now = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    setCurrentDate(new Date().toLocaleDateString('en-IN', options));
+    setCurrentDate(now.toLocaleDateString('en-IN', options));
+
+    const apiKey = import.meta.env.VITE_JYOTISHAM_API_KEY;
+    if (!apiKey) return;
+
+    const url = `https://api.jyotishamastroapi.com/api/panchang/panchang?date=${toApiDate(now)}&time=${toApiTime(now)}&latitude=${LOCATION.lat}&longitude=${LOCATION.lon}&tz=${LOCATION.tz}&lang=en`;
+
+    fetch(url, { headers: { key: apiKey } })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.status === 200) setPanchang(data.response);
+      })
+      .catch(() => {
+        // Keep static fallback values on failure
+      });
   }, []);
+
+  const sunrise = panchang?.advanced_details?.sun_rise ?? '05:42 AM';
+  const sunset = panchang?.advanced_details?.sun_set ?? '07:11 PM';
+  const tithi = panchang ? `${panchang.tithi.type} Paksha ${panchang.tithi.name}` : 'Shukla Paksha Dashami';
+  const nakshatra = panchang?.nakshatra?.name ?? 'Magha';
+  const abhijit = panchang?.advanced_details?.abhijitMuhurta;
+  const abhijitTime = abhijit ? `${abhijit.start} - ${abhijit.end}` : '11:50 AM - 12:45 PM';
+  const rahuKaal = panchang?.rahukaal ? panchang.rahukaal.replace(' to ', ' - ') : '04:30 PM - 06:00 PM';
 
   return (
     <div className="panchang-widget glass-card">
@@ -27,7 +58,7 @@ const PanchangWidget = () => {
           </div>
           <div className="panchang-details">
             <span className="panchang-label">Sunrise</span>
-            <span className="panchang-value">05:42 AM</span>
+            <span className="panchang-value">{sunrise}</span>
           </div>
         </div>
         
@@ -37,7 +68,7 @@ const PanchangWidget = () => {
           </div>
           <div className="panchang-details">
             <span className="panchang-label">Sunset</span>
-            <span className="panchang-value">07:11 PM</span>
+            <span className="panchang-value">{sunset}</span>
           </div>
         </div>
         
@@ -47,7 +78,7 @@ const PanchangWidget = () => {
           </div>
           <div className="panchang-details">
             <span className="panchang-label">Tithi</span>
-            <span className="panchang-value">Shukla Paksha Dashami</span>
+            <span className="panchang-value">{tithi}</span>
           </div>
         </div>
         
@@ -57,7 +88,7 @@ const PanchangWidget = () => {
           </div>
           <div className="panchang-details">
             <span className="panchang-label">Nakshatra</span>
-            <span className="panchang-value">Magha</span>
+            <span className="panchang-value">{nakshatra}</span>
           </div>
         </div>
       </div>
@@ -68,7 +99,7 @@ const PanchangWidget = () => {
             <h3>Abhijit Muhurat</h3>
             <span className="muhurat-badge">Auspicious</span>
           </div>
-          <p className="muhurat-time">11:50 AM - 12:45 PM</p>
+          <p className="muhurat-time">{abhijitTime}</p>
           <p className="muhurat-desc">The most powerful and auspicious time of the day to start any new or important work.</p>
         </div>
 
@@ -77,7 +108,7 @@ const PanchangWidget = () => {
             <h3>Rahu Kaal</h3>
             <span className="muhurat-badge danger">Inauspicious</span>
           </div>
-          <p className="muhurat-time">04:30 PM - 06:00 PM</p>
+          <p className="muhurat-time">{rahuKaal}</p>
           <p className="muhurat-desc">Avoid starting new ventures, signing documents, or doing important tasks during this period.</p>
         </div>
       </div>
