@@ -22,12 +22,24 @@ const Signup = () => {
     setLoading(true);
 
     try {
+      // Checked ahead of signUp because a duplicate phone number is only caught
+      // by a DB trigger (profiles.phone is unique), not by Supabase Auth itself —
+      // that raises a raw Postgres error supabase-js can't turn into a clean message.
+      const trimmedPhone = phone.trim();
+      const { data: existingEmail } = await supabase.rpc('email_for_phone', { p_phone: trimmedPhone });
+      if (existingEmail) throw new Error('This phone number is already registered. Try logging in instead.');
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { name, phone: phone.trim() } },
+        options: { data: { name, phone: trimmedPhone } },
       });
-      if (signUpError) throw new Error(signUpError.message);
+      if (signUpError) {
+        if (/already registered|user_already_exists/i.test(signUpError.message || '')) {
+          throw new Error('This email is already registered. Try logging in instead.');
+        }
+        throw new Error(signUpError.message);
+      }
 
       // If email confirmation is enabled, there is no active session yet.
       if (data.session) {
@@ -36,7 +48,12 @@ const Signup = () => {
         setInfo('Account created! Please check your email to confirm, then log in.');
       }
     } catch (err) {
-      setError(err.message);
+      // Safety net: never show a raw/unreadable error (e.g. a stray "{}" from a
+      // malformed API response) — fall back to a generic, still-readable message.
+      const message = typeof err.message === 'string' && err.message.trim() && err.message !== '{}'
+        ? err.message
+        : 'Something went wrong. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
