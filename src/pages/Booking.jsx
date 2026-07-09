@@ -19,6 +19,9 @@ const Booking = () => {
 
   const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
+  const [paidTypeIds, setPaidTypeIds] = useState(new Set());
+  const [payingType, setPayingType] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   // Require login before booking.
   useEffect(() => {
@@ -64,6 +67,56 @@ const Booking = () => {
   const displayName = profile?.name || user?.user_metadata?.name || '';
   const email = profile?.email || user?.email || '';
   const calLink = selectedType ? `${CAL_USERNAME}/${selectedType.cal_event_slug || selectedType.id}` : null;
+  const needsPayment = selectedType && Number(selectedType.price) > 0 && !paidTypeIds.has(selectedType.id);
+
+  // Creates a Razorpay order server-side, opens the checkout modal, then has
+  // the server verify the signature before unlocking the calendar — the
+  // client's word that "payment succeeded" is never trusted on its own.
+  const handlePay = async () => {
+    if (!selectedType || !window.Razorpay) return;
+    setPayingType(true);
+    setPaymentError('');
+    try {
+      const { data: order, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
+        body: { consultationTypeId: selectedType.id },
+      });
+      if (orderError) throw new Error(orderError.message);
+
+      await new Promise((resolve, reject) => {
+        const rzp = new window.Razorpay({
+          key: order.keyId,
+          amount: order.amount,
+          currency: order.currency,
+          order_id: order.orderId,
+          name: 'Astro Dilip Sharma',
+          description: `${selectedType.title} Consultation`,
+          prefill: { name: displayName, email },
+          theme: { color: '#FF6B00' },
+          handler: async (response) => {
+            const { data: verified, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+              body: {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+            });
+            if (verifyError || !verified?.verified) {
+              reject(new Error(verifyError?.message || 'Payment could not be verified. Please contact support.'));
+              return;
+            }
+            setPaidTypeIds((prev) => new Set(prev).add(selectedType.id));
+            resolve();
+          },
+          modal: { ondismiss: () => reject(new Error('Payment cancelled.')) },
+        });
+        rzp.open();
+      });
+    } catch (err) {
+      setPaymentError(err.message || 'Payment failed. Please try again.');
+    } finally {
+      setPayingType(false);
+    }
+  };
 
   return (
     <div className="booking-page">
@@ -110,6 +163,16 @@ const Booking = () => {
               </p>
             ) : !selectedType ? (
               <p className="hint-text">Select a consultation type to see availability.</p>
+            ) : needsPayment ? (
+              <div className="payment-gate">
+                <p className="hint-text">
+                  This consultation costs ₹{selectedType.price}. Complete payment to pick a date &amp; time.
+                </p>
+                {paymentError && <p className="hint-text" style={{ color: '#DC2626' }}>{paymentError}</p>}
+                <button type="button" className="btn-primary" onClick={handlePay} disabled={payingType}>
+                  {payingType ? 'Processing...' : `Pay ₹${selectedType.price} to Continue`}
+                </button>
+              </div>
             ) : (
               <div className="cal-embed-wrapper" style={{ minHeight: 600 }}>
                 <Cal

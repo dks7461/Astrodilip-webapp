@@ -140,6 +140,29 @@ Deno.serve(async (req) => {
   let status: 'pending' | 'confirmed' | 'completed' | 'cancelled' = 'confirmed';
   if (triggerEvent === 'BOOKING_CANCELLED') status = 'cancelled';
 
+  // Look for a verified payment this user made for this consultation type that
+  // hasn't been claimed by another booking yet (a user could pay, then book,
+  // reschedule, etc. — claiming prevents one payment covering two bookings).
+  let paymentStatus: 'waived' | 'paid' = 'waived';
+  let paymentId: string | null = null;
+  if (userId && status !== 'cancelled') {
+    const { data: payment } = await admin
+      .from('payments')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('consultation_type', eventType)
+      .eq('status', 'paid')
+      .is('claimed_by_booking', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (payment) {
+      paymentStatus = 'paid';
+      paymentId = payment.id;
+      await admin.from('payments').update({ claimed_by_booking: calBookingUid }).eq('id', payment.id);
+    }
+  }
+
   const row = {
     cal_booking_uid: calBookingUid,
     user_id: userId,
@@ -151,7 +174,8 @@ Deno.serve(async (req) => {
     end_time: payload.endTime ?? null,
     meeting_url: eventType === 'chat' ? null : meetingUrl,
     status,
-    payment_status: 'waived' as const,
+    payment_status: paymentStatus,
+    payment_id: paymentId,
     notes: payload.additionalNotes ?? null,
   };
 

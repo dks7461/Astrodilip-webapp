@@ -190,6 +190,21 @@
   font-style: italic;
 }
 
+.payment-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 2rem;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-card);
+}
+
+.payment-gate .hint-text {
+  margin: 0;
+}
+
 .time-slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
